@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lista - Theater Coordinator Pro</title>
+    <meta name="theme-color" content="#1a1a1a">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { 
+            --primary: #ef233c;       
+            --bg: #1a1a1a;            
+            --card-bg: #ffffff;       /* Bright cards for input as requested */
+            --input-bg: #f8f9fa;
+            --text-dark: #2b2d42;
+            --text-light: #f8f9fa;    
+            --highlight: #ffd166;
+            --shadow: 0 4px 15px rgba(0,0,0,0.5);
+            --border-radius: 12px;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; 
+            background: var(--bg); 
+            color: var(--text-light); 
+            margin: 0; 
+            padding: 20px 0; 
+        }
+
+        .container { width: 95%; max-width: 800px; margin: 0 auto; padding-bottom: 80px; }
+
+        header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
+        h1 { margin: 0; color: var(--primary); font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* BRIGHT INPUT CARDS ON DARK BACKGROUND */
+        .card { 
+            background: var(--card-bg); 
+            border-radius: var(--border-radius); 
+            padding: 25px; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 20px; 
+            color: var(--text-dark);
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; 
+            background: var(--input-bg); color: var(--text-dark); font-size: 1rem; box-sizing: border-box; 
+        }
+
+        /* BUTTONS */
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: 0.2s; color: white; }
+        .btn-primary { background: var(--primary); }
+        .btn-secondary { background: #4361ee; }
+        .btn-success { background: #2a9d8f; }
+        .btn-nurse { background: #f77f00; }
+
+        .view-section { display: none; }
+        .active-view { display: block; }
+
+        /* PATIENT CARD (OUTPUT) */
+        .patient-card { 
+            background: #ffffff; color: #2b2d42; border-radius: 10px; margin-bottom: 30px; 
+            overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2); page-break-after: always;
+        }
+        .pc-header { background: #e9ecef; padding: 12px 15px; border-left: 6px solid var(--primary); display: flex; justify-content: space-between; }
+        .pc-body { padding: 20px; }
+        
+        /* TAG BOXES FOR NOTES & REQUESTS */
+        .tag-container { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
+        .tag-red { background: #ff4d4d; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .tag-blue { background: #0077b6; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+
+        .section-title { font-size: 0.8rem; font-weight: 800; color: #555; text-transform: uppercase; margin: 15px 0 5px 0; border-bottom: 2px solid var(--primary); display: inline-block; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+        .data-box { background: #f8f9fa; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6; }
+        .lbl { font-size: 0.6rem; color: #888; text-transform: uppercase; font-weight: 700; }
+        .val { font-size: 1rem; font-weight: 800; }
+        .drops-text { font-size: 0.65rem; color: #e76f51; font-weight: 700; display: block; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        td { padding: 8px 4px; border-bottom: 1px solid #f1f3f5; font-size: 0.9rem; }
+        .vol-col { font-weight: 900; color: var(--primary); text-align: right; }
+
+        .block-highlight { background: #e0fbfc; padding: 10px; border-radius: 8px; border: 2px solid #0077b6; margin-top: 15px; }
+        .alert-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; margin-top: 10px; }
+
+        .footer-note { text-align: center; padding: 20px; font-size: 0.75rem; color: #888; background: #fff; }
+        .footer-note a { color: #25D366; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header><h1>Lista App</h1></header>
+
+    <div id="view-setup" class="view-section active-view">
+        <div class="card">
+            <div class="form-group"><label>Theater Name</label><input type="text" id="listName" placeholder="OR 1"></div>
+            <div class="form-group"><label>Date</label><input type="date" id="listDate"></div>
+            <div class="row"><div class="col"><label>Surgeons</label><input type="text" id="surgeons"></div><div class="col"><label>Anesthetists</label><input type="text" id="anesthetists"></div></div>
+            <button class="btn-primary" onclick="showInput()">Start List</button>
+        </div>
+    </div>
+
+    <div id="view-input" class="view-section">
+        <div class="card">
+            <input type="hidden" id="pId">
+            <div class="form-group"><label>Patient Name</label><input type="text" id="pName"></div>
+            <div class="row">
+                <div class="col"><label>Age (Y)</label><input type="number" id="pAge" step="0.1" onchange="estW()"></div>
+                <div class="col"><label>Weight (kg)</label><input type="number" id="pWeight" step="0.1"></div>
+            </div>
+            <div class="form-group"><label>Operation</label><input type="text" id="pOp"></div>
+            <div class="form-group">
+                <label>Anesthesia Type</label>
+                <select id="pType">
+                    <option value="GA">GA</option>
+                    <option value="Spinal">Spinal</option>
+                    <option value="Sedation">Sedation</option>
+                    <option value="Regional">Regional/Block</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Add Nerve Block Additive</label>
+                <select id="pNerve">
+                    <option value="none">None</option>
+                    <option value="Interscalene">Interscalene</option>
+                    <option value="Supraclav">Supraclav.</option>
+                    <option value="Infraclav">Infraclav.</option>
+                    <option value="Axillary">Axillary</option>
+                    <option value="Tap">Tap</option>
+                    <option value="ESP">ESP</option>
+                    <option value="Serratus">Serratus</option>
+                    <option value="Illiacus">Illiacus</option>
+                    <option value="Femoro-sciatic">Femoro-sciatic</option>
+                    <option value="Femoro-popliteal">Femoro-popliteal</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Requests (Separated by comma)</label><input type="text" id="pReq" placeholder="Blood, Plasma, ICU"></div>
+            <div class="form-group"><label>Positive Data / Notes (Separated by comma)</label><textarea id="pNotes" placeholder="Hb 8, Htn, DM"></textarea></div>
+            
+            <div class="btn-group">
+                <button class="btn-secondary" id="btnAdd" onclick="savePatient()">➕ Add Patient</button>
+                <button class="btn-success" onclick="renderOutput()">✅ View List</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-output" class="view-section">
+        <div id="pdf-area" style="background: #1a1a1a;">
+            <div id="output-header" style="background:#fff; color:#000; padding:20px; text-align:center; border-bottom:4px solid var(--primary);">
+                <h2 id="outTitle" style="margin:0; color:var(--primary)"></h2>
+                <p id="outMeta" style="margin:5px 0; font-weight:bold; color:#555;"></p>
+            </div>
+            <div id="list-container" style="padding:15px;"></div>
+            <div class="footer-note">
+                Generated by <strong>Lista App</strong> by <strong>Dr. Abdow</strong>. 
+                For contact <a href="https://wa.me/201550086024">contact me</a> on WhatsApp.
+            </div>
+        </div>
+        <div class="card" style="background:transparent; box-shadow:none;">
+            <button class="btn-primary" onclick="downloadPDF()">📄 Save as PDF (Anesthesia)</button>
+            <button class="btn-nurse" style="margin-top:10px; width:100%" onclick="saveNurseImg()">📸 Save Management Photo</button>
+            <button class="btn-secondary" style="margin-top:10px; width:100%" onclick="showInput()">🔙 Back</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let patients = [];
+    let isEdit = false;
+
+    function estW() {
+        let a = parseFloat(document.getElementById('pAge').value);
+        let w = a < 1 ? (a*12+9)/2 : (a<=8 ? (a*2)+8 : (a<18 ? (a*3)+7 : 70));
+        document.getElementById('pWeight').placeholder = `Est: ${w.toFixed(1)}kg`;
+    }
+
+    function showInput() {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view'));
+        document.getElementById('view-input').classList.add('active-view');
+    }
+
+    function savePatient() {
+        let p = {
+            id: isEdit ? parseInt(document.getElementById('pId').value) : Date.now(),
+            name: document.getElementById('pName').value,
+            age: parseFloat(document.getElementById('pAge').value),
+            weight: parseFloat(document.getElementById('pWeight').value) || parseFloat(document.getElementById('pWeight').placeholder.split(':')[1]),
+            op: document.getElementById('pOp').value,
+            type: document.getElementById('pType').value,
+            nerve: document.getElementById('pNerve').value,
+            req: document.getElementById('pReq').value,
+            notes: document.getElementById('pNotes').value
+        };
+        if(!p.name) return alert("Enter Name");
+        if(isEdit) patients = patients.map(x => x.id === p.id ? p : x);
+        else patients.push(p);
+        resetForm();
+    }
+
+    function resetForm() {
+        isEdit = false;
+        document.getElementById('pId').value = "";
+        document.getElementById('pName').value = "";
+        document.getElementById('pAge').value = "";
+        document.getElementById('pWeight').value = "";
+        document.getElementById('pOp').value = "";
+        document.getElementById('pReq').value = "";
+        document.getElementById('pNotes').value = "";
+        document.getElementById('btnAdd').innerText = "➕ Add Patient";
+    }
+
+    function getDrops(ml) {
+        let d = (ml * 15) / 3600;
+        return d >= 1 ? `${d.toFixed(1)} drops/sec` : `1 drop / ${(1/d).toFixed(0)} sec`;
+    }
+
+    function calculate(p) {
+        let w = p.weight, age = p.age;
+        let ibw = age < 1 ? (age*12+9)/2 : (age<=8 ? (age*2)+8 : (age<18 ? (age*3)+7 : 70));
+        let isObese = (w > ibw * 1.3 && age >= 12);
+        let abw = isObese ? (ibw + 0.4 * (w - ibw)) : w;
+        
+        let maint = w <= 10 ? w*4 : (w <= 20 ? 40+(w-10)*2 : 60+(w-20));
+        let drugs = [];
+        
+        // Logical filtering for Spinal
+        let isSpinal = p.type === "Spinal";
+        
+        if (!isSpinal) {
+            let prp = (age < 12 ? w*3 : abw*2);
+            drugs.push({n: "Propofol", d: prp, u: "mg", v: prp/10});
+            drugs.push({n: "Atracurium", d: ibw*0.5, u: "mg", v: (ibw*0.5)/5});
+            drugs.push({n: "Neostigmine", d: Math.min(ibw*0.05, 5), u: "mg", v: Math.min(ibw*0.05, 5)/2.5*10});
+        }
+        
+        drugs.push({n: "Fentanyl", d: w*1.5, u: "mcg", v: (w*1.5)/10});
+        drugs.push({n: "Dexamethasone", d: age >= 18 ? 8 : Math.min(w*0.15, 10), u: "mg", v: (age >= 18 ? 8 : Math.min(w*0.15, 10))/4});
+        drugs.push({n: "Adrenaline", d: (age>=12?0.025:w*0.001), u: "mg", v: (age>=12?0.025:w*0.001)/0.1});
+
+        return { maint, drugs, lido: ibw*3, marc: ibw*2, isObese, age };
+    }
+
+    function renderOutput() {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view'));
+        document.getElementById('view-output').classList.add('active-view');
+        
+        document.getElementById('outTitle').innerText = document.getElementById('listName').value;
+        document.getElementById('outMeta').innerText = `${document.getElementById('listDate').value} | Surgeons: ${document.getElementById('surgeons').value}`;
+        
+        let cont = document.getElementById('list-container');
+        cont.innerHTML = "";
+
+        patients.forEach((p, i) => {
+            let c = calculate(p);
+            let noteTags = p.notes.split(',').map(t => t.trim() ? `<span class="tag-red">${t}</span>` : "").join("");
+            let reqTags = p.req.split(',').map(t => t.trim() ? `<span class="tag-blue">${t}</span>` : "").join("");
+            
+            let drugRows = c.drugs.map(d => `<tr><td>${d.n}</td><td>${d.d.toFixed(1)}${d.u}</td><td class="vol-col">${d.v.toFixed(1)}ml</td></tr>`).join("");
+
+            cont.innerHTML += `
+            <div class="patient-card">
+                <div class="pc-header">
+                    <strong>#${i+1} ${p.name}</strong>
+                    <span>${p.age}Y | ${p.weight}kg</span>
+                </div>
+                <div class="pc-body">
+                    <div style="font-weight:bold; color:var(--primary); margin-bottom:10px;">${p.op} (${p.type})</div>
+                    <div class="tag-container">${noteTags}${reqTags}</div>
+
+                    <div class="clinical-only">
+                        <div class="section-title">🌬️ Fluids (drops)</div>
+                        <div class="grid-3">
+                            <div class="data-box"><div class="lbl">1st Hr</div><div class="val">${(c.maint*4).toFixed(0)}ml</div><span class="drops-text">${getDrops(c.maint*4)}</span></div>
+                            <div class="data-box"><div class="lbl">2nd Hr</div><div class="val">${(c.maint*2.5).toFixed(0)}ml</div><span class="drops-text">${getDrops(c.maint*2.5)}</span></div>
+                            <div class="data-box"><div class="lbl">3rd Hr</div><div class="val">${(c.maint*2).toFixed(0)}ml</div><span class="drops-text">${getDrops(c.maint*2)}</span></div>
+                        </div>
+
+                        <div class="section-title">💉 Drugs</div>
+                        <table>${drugRows}</table>
+
+                        ${p.nerve !== 'none' ? `
+                        <div class="block-highlight">
+                            <strong>📍 BLOCK: ${p.nerve}</strong><br>
+                            Bupivacaine 0.5%: <span style="color:#ef233c; font-weight:900;">20ml (100mg)</span>
+                        </div>` : ''}
+
+                        <div style="font-size:0.7rem; margin-top:10px; border-top:1px dashed #ccc; padding-top:5px;">
+                            MAX Lido: ${c.lido}mg | Marcaine: ${c.marc}mg
+                        </div>
+                        ${c.age < 12 ? '<div class="alert-box">⚠️ PEDIATRIC: Warm fluids, check glucose.</div>' : ''}
+                        ${c.isObese ? '<div class="alert-box">⚠️ OBESITY: Doses on IBW/ABW. Difficult Airway Risk.</div>' : ''}
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const cards = document.querySelectorAll('.patient-card');
+        
+        for(let i=0; i<cards.length; i++) {
+            const canvas = await html2canvas(cards[i], { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+            if(i < cards.length - 1) pdf.addPage();
+        }
+        pdf.save(`Lista_${document.getElementById('listName').value}.pdf`);
+    }
+
+    async function saveNurseImg() {
+        document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'none');
+        const canvas = await html2canvas(document.getElementById('pdf-area'), { scale: 2 });
+        const link = document.createElement('a');
+        link.download = 'Management_List.png';
+        link.href = canvas.toDataURL();
+        link.click();
+        document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'block');
+    }
+</script>
+</body>
+</html>
