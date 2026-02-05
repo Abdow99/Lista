@@ -6,14 +6,16 @@
     <title>Anesthesia Theater Coordinator Pro</title>
     <meta name="theme-color" content="#1a1a1a">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { 
             --primary: #ef233c;       
             --bg: #1a1a1a;            
-            --card-bg: #2b2b2b;       
-            --input-bg: #3d3d3d;
+            --card-bg: #ffffff;
+            --dark-card: #2b2b2b;
+            --input-bg: #f8f9fa;
+            --text-main: #2b2d42;
             --text-light: #f8f9fa;    
-            --text-gray: #adb5bd;
             --highlight: #ffd166;
             --shadow: 0 4px 15px rgba(0,0,0,0.5);
             --border-radius: 12px;
@@ -33,11 +35,21 @@
         header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
         h1 { margin: 0; color: var(--primary); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* FORMS */
-        .card { background: var(--card-bg); border-radius: var(--border-radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
+        /* FORMS - Bright Styling */
+        .card { 
+            background: var(--card-bg); 
+            color: var(--text-main);
+            border-radius: var(--border-radius); 
+            padding: 20px; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 20px; 
+        }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: var(--input-bg); color: white; font-size: 1rem; box-sizing: border-box; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; 
+            background: var(--input-bg); color: #333; font-size: 1rem; box-sizing: border-box; 
+        }
         .row { display: flex; gap: 10px; }
         .col { flex: 1; }
 
@@ -55,7 +67,7 @@
         .view-section { display: none; }
         .active-view { display: block; }
 
-        /* PATIENT CARD DESIGN (Abdowthesia Style) */
+        /* PATIENT CARD DESIGN */
         .patient-card { 
             background: #ffffff; 
             color: #2b2d42; 
@@ -64,6 +76,7 @@
             overflow: hidden; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             position: relative;
+            /* No page-break forced here, handled by JS for perfect fit */
         }
         .pc-header { 
             background: #e9ecef; padding: 10px 15px; border-left: 6px solid var(--primary); display: flex; justify-content: space-between; align-items: center;
@@ -76,8 +89,16 @@
         .highlight-data { font-size: 1.1rem; font-weight: 900; color: #000; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
         .highlight-val { color: var(--primary); background: #fff3cd; padding: 0 4px; border-radius: 4px; }
 
-        .notes-section { font-size: 0.85rem; margin: 10px 0; background: #ffe5e5; padding: 8px; border-radius: 6px; color: #d00000; font-weight: 700; display: none; }
-        .requests-section { font-size: 0.85rem; margin: 5px 0; background: #e0fbfc; padding: 8px; border-radius: 6px; color: #0077b6; font-weight: 700; display: none; }
+        /* UPDATED NOTES & REQUESTS STYLING */
+        .tags-wrapper { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 5px; }
+        .tag-note { 
+            background: #ffe5e5; color: #d00000; padding: 4px 8px; 
+            border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #ffccd5;
+        }
+        .tag-req { 
+            background: #e0fbfc; color: #0077b6; padding: 4px 8px; 
+            border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #caf0f8;
+        }
 
         /* CLINICAL GRIDS */
         .section-title { font-size: 0.8rem; font-weight: 800; color: #555; text-transform: uppercase; margin: 15px 0 5px 0; border-bottom: 2px solid var(--primary); display: inline-block; }
@@ -86,7 +107,7 @@
         .data-box { background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px solid #dee2e6; }
         .lbl { font-size: 0.6rem; color: #888; text-transform: uppercase; font-weight: 700; }
         .val { font-size: 0.95rem; font-weight: 800; color: #2b2d42; }
-        .drops-text { font-size: 0.6rem; color: #e76f51; font-weight: 700; display: block; font-style: italic; }
+        .drops-text { font-size: 0.65rem; color: #e76f51; font-weight: 700; display: block; font-style: italic; }
 
         /* DRUG TABLE */
         table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.85rem; }
@@ -109,8 +130,19 @@
         #final-list-header h2 { margin: 0; font-size: 1.8rem; color: var(--primary); text-transform: uppercase; }
         #final-list-header p { margin: 5px 0 0 0; font-weight: 600; color: #555; }
 
-        /* NURSE MODE HIDING */
-        .nurse-hidden { display: block; } 
+        /* DISCLAIMER FOOTER */
+        .app-footer {
+            margin-top: 30px;
+            padding: 15px;
+            background: #fff;
+            color: #666;
+            font-size: 0.7rem;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .app-footer a { color: var(--primary); text-decoration: none; font-weight: bold; }
+
     </style>
 </head>
 <body>
@@ -156,7 +188,8 @@
                 <span id="edit-indicator" style="color:var(--highlight); font-size:0.8rem; display:none;">EDITING MODE</span>
             </div>
             
-            <input type="hidden" id="pId"> <div class="form-group">
+            <input type="hidden" id="pId"> 
+            <div class="form-group">
                 <label>Patient Name</label>
                 <input type="text" id="pName">
             </div>
@@ -188,12 +221,28 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Requests (Blood, Plasma, ICU, etc)</label>
-                <input type="text" id="pRequests" placeholder="e.g. Prepare 2 units PRBCs">
+                <label>Additive Nerve Block</label>
+                <select id="pNerve">
+                    <option value="None">None</option>
+                    <option value="Interscalene">Interscalene</option>
+                    <option value="Supraclav">Supraclav.</option>
+                    <option value="Infraclav">Infraclav.</option>
+                    <option value="Axillary">Axillary</option>
+                    <option value="Tap">Tap</option>
+                    <option value="ESP">ESP</option>
+                    <option value="Serratus">Serratus</option>
+                    <option value="Illiacus">Illiacus</option>
+                    <option value="Femoro-sciatic">Femoro-sciatic</option>
+                    <option value="Femoro-popliteal">Femoro-popliteal</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>Positive Data / Allergies / Notes</label>
-                <textarea id="pNotes" placeholder="Medical history, Difficult airway, Specific Block..."></textarea>
+                <textarea id="pNotes" placeholder="Hb 8, Htn, Dm on insulin..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Requests (Blood, Plasma, ICU, etc)</label>
+                <input type="text" id="pRequests" placeholder="blood, plasma, ICU...">
             </div>
 
             <div class="btn-group">
@@ -222,18 +271,27 @@
 
             <div id="list-container" style="padding: 10px;"></div>
 
-            <div style="text-align:center; padding:10px; font-size:0.6rem; color:#999; border-top:1px solid #eee;">
-                Generated by Anesthesia Coordinator Pro. Verify all doses.
+            <div class="app-footer">
+                <p style="margin: 0 0 5px 0; font-weight: bold;">MEDICAL DISCLAIMER</p>
+                <p style="margin: 0 0 10px 0; font-style: italic;">
+                    This list was made by Lista app and it is for organizing the theater and calculations aid for healthcare professionals. 
+                    Verify all the data of patients and all doses according to local protocols. 
+                    The developer is not responsible for clinical errors.
+                </p>
+                <p style="margin: 0;">
+                    Feedback: 
+                    <a href="https://wa.me/201550086024" target="_blank">Dr. Abdow Whatsapp: +201550086024</a>
+                </p>
             </div>
         </div>
 
-        <div class="card" style="margin-top:20px;">
+        <div class="card" style="margin-top:20px; background: #2b2b2b; color:white;">
             <label>Saving Options</label>
             <div class="btn-group">
-                <button class="btn-primary" onclick="saveImage('full')">📸 Save for Anesthesia (Full)</button>
+                <button class="btn-primary" onclick="downloadPDF()">📄 Save as PDF (Full Anesthesia)</button>
             </div>
             <div class="btn-group" style="margin-top:10px;">
-                <button class="btn-nurse" onclick="saveImage('nurse')">📋 Save for Management (No Drugs)</button>
+                <button class="btn-nurse" onclick="saveImage('nurse')">📸 Save Management Photo</button>
             </div>
             <p style="font-size:0.7rem; color:#aaa; text-align:center; margin-top:5px;">
                 "Management" version hides drugs, fluids & airway details.
@@ -243,6 +301,12 @@
 </div>
 
 <script>
+    // --- HELPERS ---
+    // Format number to remove trailing zeros (e.g. 140.00 -> 140)
+    function fmtNum(n) {
+        return parseFloat(n.toFixed(2));
+    }
+
     // --- DATA STORE ---
     let listMeta = { name: "", date: "", surgeons: "", anesthetists: "" };
     let patients = [];
@@ -251,7 +315,7 @@
     // --- INIT ---
     window.onload = function() {
         const tmr = new Date();
-        tmr.setDate(tmr.getDate() + 1); // Default tomorrow
+        tmr.setDate(tmr.getDate() + 1); 
         document.getElementById('listDate').valueAsDate = tmr;
     };
 
@@ -267,7 +331,6 @@
         document.getElementById('view-input').classList.add('active-view');
         document.getElementById('status-bar').innerText = "Step 2: Add Patients";
         
-        // Reset form for new entry unless editing
         if(!editMode) clearForm();
     }
 
@@ -288,6 +351,7 @@
         document.getElementById('pAge').value = "";
         document.getElementById('pWeight').value = "";
         document.getElementById('pOp').value = "";
+        document.getElementById('pNerve').value = "None";
         document.getElementById('pRequests').value = "";
         document.getElementById('pNotes').value = "";
         document.getElementById('pWeight').placeholder = "Auto-Est if empty";
@@ -306,6 +370,7 @@
         let weight = parseFloat(document.getElementById('pWeight').value);
         const op = document.getElementById('pOp').value;
         const type = document.getElementById('pType').value;
+        const nerve = document.getElementById('pNerve').value;
         const req = document.getElementById('pRequests').value;
         const notes = document.getElementById('pNotes').value;
 
@@ -314,7 +379,6 @@
             return;
         }
 
-        // Auto Calc Weight if empty
         let estimated = false;
         if (!weight) {
             estimated = true;
@@ -326,16 +390,14 @@
 
         const pObj = {
             id: idVal ? parseInt(idVal) : Date.now(),
-            name, age, weight, estimated, op, type, req, notes
+            name, age, weight, estimated, op, type, nerve, req, notes
         };
 
         if(editMode && idVal) {
-            // Update existing
             const idx = patients.findIndex(p => p.id == idVal);
             if(idx !== -1) patients[idx] = pObj;
             editMode = false;
         } else {
-            // Add new
             patients.push(pObj);
         }
 
@@ -347,7 +409,7 @@
     function deletePatient(id) {
         if(confirm("Delete this patient?")) {
             patients = patients.filter(p => p.id !== id);
-            generateView(); // Re-render list
+            generateView(); 
         }
     }
 
@@ -365,6 +427,7 @@
         document.getElementById('pWeight').value = p.weight;
         document.getElementById('pOp').value = p.op;
         document.getElementById('pType').value = p.type;
+        document.getElementById('pNerve').value = p.nerve;
         document.getElementById('pRequests').value = p.req;
         document.getElementById('pNotes').value = p.notes;
         
@@ -374,19 +437,18 @@
         document.getElementById('edit-indicator').style.display = 'inline';
     }
 
-    // --- LOGIC ENGINE (Abdowthesia Port) ---
+    // --- LOGIC ENGINE ---
     function getDripRate(mlPerHour) {
         if (!mlPerHour || mlPerHour <= 0) return "--";
         const dropsPerSec = (mlPerHour * 15) / 3600;
-        if (dropsPerSec >= 1) return `${dropsPerSec.toFixed(1)} gtt/s`;
-        else return `1 gtt / ${(1/dropsPerSec).toFixed(0)}s`;
+        if (dropsPerSec >= 1) return `${dropsPerSec.toFixed(1)} drops/s`;
+        else return `1 drop / ${(1/dropsPerSec).toFixed(0)}s`;
     }
 
     function calculate(p) {
         const w = p.weight;
         const age = p.age;
         
-        // Weight Definitions
         let ibw = 70;
         if (age < 1) ibw = (age * 12 + 9) / 2;
         else if (age <= 8) ibw = (age * 2) + 8;
@@ -398,7 +460,7 @@
         const w_ind = isObese ? abw : w;
         const w_nmb = isObese ? ibw : w;
 
-        // Airway Logic (Abdowthesia)
+        // Airway
         let ettVal, bladeText;
         if (age < 0.1) { ettVal = "2.5"; bladeText = "Miller 0"; }
         else if (age < 0.5) { ettVal = "3.0"; bladeText = "Miller 0/1"; }
@@ -413,62 +475,62 @@
         // Fluid Logic
         let maint = (w <= 10) ? (w * 4) : (w <= 20 ? (40 + (w-10)*2) : (60 + (w-20)));
         let deficit = maint * 6;
-        let rate1st = maint + (deficit/2);
+        let rate1st = maint + (deficit * 0.5); 
+        let rate2nd = maint + (deficit * 0.25); 
+        let rate3rd = maint + (deficit * 0.25); 
 
         // Drugs Logic
         let drugs = [];
-        
-        const isGA = p.type === 'GA';
         const isSedation = p.type === 'Sedation';
-        const isBlock = p.type === 'Spinal' || p.type.includes('Block') || p.type.includes('Regional');
 
         // Propofol
-        if (!isBlock) {
-             // Sedation: 1mg/kg, GA Child: 3mg/kg, GA Adult: 2mg/kg
-            let pFactor = isSedation ? 1.0 : (age < 12 ? 3 : 2);
-            let pDose = (isSedation ? w : (age < 12 ? w : w_ind)) * pFactor;
-            let pLabel = isSedation ? "Propofol (Sedation)" : "Propofol";
-            drugs.push({cat: "Induction", name: pLabel, prep: "10mg/mL", dose: pDose, unit: "mg", ml: pDose/10, badge: isSedation ? "TBW" : (age<12?"TBW":"ABW")});
-        }
+        let pFactor = isSedation ? 1.0 : (age < 12 ? 3 : 2);
+        let pDose = (isSedation ? w : (age < 12 ? w : w_ind)) * pFactor;
+        let pLabel = isSedation ? "Propofol (Sedation)" : "Propofol";
+        drugs.push({cat: "Induction", name: pLabel, prep: "10mg/mL", dose: pDose, unit: "mg", ml: pDose/10, badge: isSedation ? "TBW" : (age<12?"TBW":"ABW")});
 
-        // NMB & Induction (Only GA)
-        if (isGA) {
-            drugs.push({cat: "Induction", name: "Fentanyl", prep: "10mcg/mL", dose: w*1.5, unit: "mcg", ml: (w*1.5)/10, badge: "TBW"});
-            drugs.push({cat: "Induction", name: "Atracurium", prep: "5mg/mL", dose: w_nmb*0.5, unit: "mg", ml: (w_nmb*0.5)/5, badge: isObese?"IBW":"TBW"});
-            drugs.push({cat: "Induction", name: "Rocuronium", prep: "10mg/mL", dose: w_nmb*0.6, unit: "mg", ml: (w_nmb*0.6)/10, badge: isObese?"IBW":"TBW"});
-        } else if (isSedation) {
-             drugs.push({cat: "Induction", name: "Fentanyl", prep: "10mcg/mL", dose: w*1, unit: "mcg", ml: (w*1)/10, badge: "TBW"});
-        }
+        // NMB & Fentanyl
+        drugs.push({cat: "Induction", name: "Fentanyl", prep: "10mcg/mL", dose: w*1.5, unit: "mcg", ml: (w*1.5)/10, badge: "TBW"});
+        drugs.push({cat: "Induction", name: "Atracurium", prep: "5mg/mL", dose: w_nmb*0.5, unit: "mg", ml: (w_nmb*0.5)/5, badge: isObese?"IBW":"TBW"});
+        drugs.push({cat: "Induction", name: "Rocuronium", prep: "10mg/mL", dose: w_nmb*0.6, unit: "mg", ml: (w_nmb*0.6)/10, badge: isObese?"IBW":"TBW"});
+        
+        // Sugammadex (Diluted 100mg/10ml -> 10mg/ml)
+        drugs.push({cat: "Induction", name: "Sugammadex", prep: "100mg/10mL", dose: w_nmb*2, unit: "mg", ml: (w_nmb*2)/10, badge: "IBW"});
 
-        // Common Drugs (Everyone)
+        // Co-Analgesia
+        // Dexamethasone (Diluted 4mg/10ml -> 0.4mg/ml)
         let dexDose = (age >= 18) ? 8 : Math.min(w*0.15, 10);
-        let dexConc = (age >= 18) ? 8 : 4;
-        drugs.push({cat: "Co-Analgesia", name: "Dexamethasone", prep: `${dexConc}mg/mL`, dose: dexDose, unit: "mg", ml: dexDose/dexConc, badge: "Fixed"});
+        drugs.push({cat: "Co-Analgesia", name: "Dexamethasone", prep: "4mg/10mL", dose: dexDose, unit: "mg", ml: dexDose/0.4, badge: "Fixed"});
         
         let paraDose = Math.min(w*15, 1000);
         drugs.push({cat: "Co-Analgesia", name: "Paracetamol", prep: "10mg/mL", dose: paraDose, unit: "mg", ml: paraDose/10, badge: "TBW"});
 
-        // Emergency / Reversal
-        if (isGA) {
-             let neoDose = Math.min(ibw*0.05, 5);
-             drugs.push({cat: "Reversal", name: "Neostigmine", prep: "2.5mg/10mL", dose: neoDose, unit: "mg", ml: neoDose/0.25, badge: "IBW"});
-             drugs.push({cat: "Reversal", name: "Atropine", prep: "0.1mg/mL", dose: Math.max(neoDose*0.4, 0.1), unit: "mg", ml: (Math.max(neoDose*0.4, 0.1))/0.1, badge: "Mix"});
-        }
-
+        // Reversal / Emergency
+        let neoDose = Math.min(ibw*0.05, 5);
+        drugs.push({cat: "Reversal", name: "Neostigmine", prep: "2.5mg/10mL", dose: neoDose, unit: "mg", ml: neoDose/0.25, badge: "IBW"});
+        
+        // Atropine moved to Emergency, Adrenaline removed
         let ephDose = Math.min(ibw*0.1, 6);
         drugs.push({cat: "Emergency", name: "Ephedrine", prep: "3mg/mL (Diluted)", dose: ephDose, unit: "mg", ml: ephDose/3, badge: "Max IBW"});
         
-        let adrDose = (age >= 12) ? 0.025 : (w*0.001); // 25mcg adult, 1mcg/kg child
-        drugs.push({cat: "Emergency", name: "Adrenaline", prep: "0.1mg/mL", dose: adrDose, unit: "mg", ml: adrDose/0.1, badge: "Rescue"});
+        // Atropine
+        drugs.push({cat: "Emergency", name: "Atropine", prep: "0.1mg/mL", dose: Math.max(neoDose*0.4, 0.1), unit: "mg", ml: (Math.max(neoDose*0.4, 0.1))/0.1, badge: "Mix"});
 
-        // Local Anesthetic Limits
+        // --- FILTERING LOGIC ---
+        // If Spinal: Remove specific drugs
+        if (p.type === 'Spinal') {
+            const blocked = ['Propofol', 'Atracurium', 'Rocuronium', 'Neostigmine', 'Sugammadex'];
+            drugs = drugs.filter(d => !blocked.includes(d.name) && !d.name.includes('Propofol'));
+        } 
+        
+        // Limits
         let lidoMax = ibw * 3;
         let marcMax = ibw * 2;
 
         return {
             ett: ettVal, blade: bladeText, depth: depthVal,
-            maint: maint, rate1st: rate1st,
-            drugs: drugs,
+            maint, rate1st, rate2nd, rate3rd,
+            drugs,
             lidoMax, marcMax
         };
     }
@@ -478,7 +540,6 @@
         document.getElementById('view-input').classList.remove('active-view');
         document.getElementById('view-output').classList.add('active-view');
 
-        // Sorting Logic: Peds/Allergies first
         patients.sort((a, b) => {
             let sA = 0, sB = 0;
             if(a.age < 12) sA += 10;
@@ -488,7 +549,6 @@
             return sB - sA;
         });
 
-        // Header Update
         document.getElementById('final-list-header').style.display = 'block';
         document.getElementById('out-list-name').innerText = listMeta.name;
         document.getElementById('out-date').innerText = listMeta.date;
@@ -501,7 +561,11 @@
         patients.forEach((p, idx) => {
             const calcs = calculate(p);
             
-            // Build Drug Rows
+            // NOTE & REQUEST TAGS
+            let noteHtml = p.notes.split(',').filter(x=>x.trim()).map(n => `<span class="tag-note">${n.trim()}</span>`).join('');
+            let reqHtml = p.req.split(',').filter(x=>x.trim()).map(r => `<span class="tag-req">${r.trim()}</span>`).join('');
+
+            // Drug Rows
             let lastCat = "";
             let drugRows = calcs.drugs.map(d => {
                 let catHeader = "";
@@ -512,25 +576,30 @@
                 return `${catHeader}
                 <tr>
                     <td><span class="drug-name">${d.name}</span> <span class="drug-prep">${d.prep}</span></td>
-                    <td>${d.dose.toFixed(2)} ${d.unit} <span class="w-badge w-${d.badge.toLowerCase().includes('ibw')?'ibw':'tbw'}">${d.badge}</span></td>
-                    <td class="vol-col">${d.ml.toFixed(1)} mL</td>
+                    <td>${fmtNum(d.dose)} ${d.unit} <span class="w-badge w-${d.badge.toLowerCase().includes('ibw')?'ibw':'tbw'}">${d.badge}</span></td>
+                    <td class="vol-col">${fmtNum(d.ml)} mL</td>
                 </tr>`;
             }).join('');
 
-            // Safety Limits embedded
             let safetyHtml = `
             <div style="margin-top:5px; font-size:0.75rem; background:#fff0f3; padding:5px; border-radius:4px; border:1px solid #ffccd5;">
                 <strong>⚠️ Max Safety Limits (IBW):</strong> 
-                Lidocaine: ${calcs.lidoMax.toFixed(0)}mg | Marcaine: ${calcs.marcMax.toFixed(0)}mg
+                Lidocaine: ${fmtNum(calcs.lidoMax)}mg | Marcaine: ${fmtNum(calcs.marcMax)}mg
             </div>`;
 
-            // Block Note check
-            let blockNote = "";
-            const combinedNotes = (p.notes + " " + p.type).toLowerCase();
-            if (combinedNotes.includes('supraclav')) blockNote = `<div style="background:#e0fbfc; padding:5px; margin-top:5px; color:#0077b6; font-weight:bold; font-size:0.8rem;">💉 Supraclavicular Block: Suggest 20-25ml 0.5% Marcaine (Echo Guided)</div>`;
-            else if (combinedNotes.includes('spinal')) blockNote = `<div style="background:#e0fbfc; padding:5px; margin-top:5px; color:#0077b6; font-weight:bold; font-size:0.8rem;">💉 Spinal: Heavy Marcaine 0.5%</div>`;
+            // NERVE BLOCK HIGHLIGHT
+            let blockHtml = "";
+            if(p.nerve && p.nerve !== 'None') {
+                let safeMaxBupi = (2 * p.weight); 
+                let safeMaxVol = safeMaxBupi / 5;
+                blockHtml = `
+                <div style="background:#e0fbfc; padding:10px; margin-top:10px; border:2px solid #0077b6; border-radius:8px; color:#0077b6;">
+                    <strong style="font-size:0.9rem;">📍 BLOCK: ${p.nerve}</strong><br>
+                    <span style="font-size:0.8rem; color:#023e8a;">Recommended Bupivacaine 0.5%:</span> 
+                    <span style="font-weight:900; font-size:1rem; color:#ef233c;">Max ${fmtNum(safeMaxVol)} ml (${fmtNum(safeMaxBupi)}mg)</span>
+                </div>`;
+            }
 
-            // HTML Construction
             const html = `
             <div class="patient-card">
                 <div class="pc-header">
@@ -547,13 +616,17 @@
                 <div class="pc-body">
                     <div class="highlight-data">
                         <span class="highlight-val">${p.age} Y</span> | 
-                        <span class="highlight-val">${p.weight} kg ${p.estimated?'(Est)':''}</span> | 
+                        <span class="highlight-val">${fmtNum(p.weight)} kg ${p.estimated?'(Est)':''}</span> | 
                         <span style="color:#ef233c;">${p.op}</span>
                         <div style="font-size:0.8rem; color:#555; margin-top:4px;">${p.type}</div>
                     </div>
 
-                    ${p.req ? `<div class="requests-section" style="display:block">🔔 REQUEST: ${p.req}</div>` : ''}
-                    ${p.notes ? `<div class="notes-section" style="display:block">⚠️ NOTE: ${p.notes}</div>` : ''}
+                    <div class="tags-wrapper">
+                        ${noteHtml}
+                    </div>
+                    <div class="tags-wrapper">
+                        ${reqHtml}
+                    </div>
 
                     <div class="clinical-only">
                         <div class="section-title">🌬️ Airway & Fluids</div>
@@ -561,9 +634,10 @@
                             <div class="data-box"><div class="lbl">ETT</div><div class="val">${calcs.ett}</div></div>
                             <div class="data-box"><div class="lbl">Depth</div><div class="val">${calcs.depth} cm</div></div>
                             <div class="data-box"><div class="lbl">Blade</div><div class="val">${calcs.blade}</div></div>
-                            <div class="data-box"><div class="lbl">Maint.</div><div class="val">${calcs.maint.toFixed(0)} ml/h</div><span class="drops-text">${getDripRate(calcs.maint)}</span></div>
-                            <div class="data-box"><div class="lbl">1st Hr</div><div class="val">${calcs.rate1st.toFixed(0)} ml</div><span class="drops-text">${getDripRate(calcs.rate1st)}</span></div>
-                            <div class="data-box"><div class="lbl">NPO Def</div><div class="val">${(calcs.maint*6).toFixed(0)} ml</div></div>
+                            
+                            <div class="data-box"><div class="lbl">1st Hr</div><div class="val">${fmtNum(calcs.rate1st)} ml</div><span class="drops-text">${getDripRate(calcs.rate1st)}</span></div>
+                            <div class="data-box"><div class="lbl">2nd Hr</div><div class="val">${fmtNum(calcs.rate2nd)} ml</div><span class="drops-text">${getDripRate(calcs.rate2nd)}</span></div>
+                            <div class="data-box"><div class="lbl">3rd Hr</div><div class="val">${fmtNum(calcs.rate3rd)} ml</div><span class="drops-text">${getDripRate(calcs.rate3rd)}</span></div>
                         </div>
 
                         <div class="section-title">💉 Drug Protocol</div>
@@ -571,8 +645,8 @@
                             <thead><tr><th style="width:50%">Drug</th><th style="width:30%">Dose</th><th style="width:20%; text-align:right">Vol</th></tr></thead>
                             <tbody>${drugRows}</tbody>
                         </table>
+                        ${blockHtml}
                         ${safetyHtml}
-                        ${blockNote}
                     </div>
                     </div>
             </div>`;
@@ -581,10 +655,62 @@
     }
 
     // --- SAVING ---
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+        const margin = 10;
+        const printW = pdfW - (margin * 2);
+
+        const cards = document.querySelectorAll('.patient-card');
+        const header = document.getElementById('final-list-header');
+
+        // Create Header Image Once
+        const headerCanvas = await html2canvas(header, { scale: 2 });
+        const hImg = headerCanvas.toDataURL('image/png');
+        const hRatio = headerCanvas.height / headerCanvas.width;
+        const hHeight = printW * hRatio;
+
+        for(let i=0; i<cards.length; i++) {
+            if (i > 0) pdf.addPage();
+
+            // Add Header on every page
+            pdf.addImage(hImg, 'PNG', margin, margin, printW, hHeight);
+
+            // Add Patient
+            const canvas = await html2canvas(cards[i], { scale: 2, useCORS: true });
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            
+            // Calculate height to fit without cropping
+            let imgHeight = (imgProps.height * printW) / imgProps.width;
+            
+            // If card is extremely long (unlikely with this data, but possible), scale it down to fit one page
+            const maxContentH = pdfH - (margin * 2) - hHeight - 20; // 20 for footer space
+            if (imgHeight > maxContentH) {
+                // Resize width to keep aspect ratio fit in height
+                const scaleFactor = maxContentH / imgHeight;
+                const newWidth = printW * scaleFactor;
+                const centeringX = margin + (printW - newWidth) / 2;
+                pdf.addImage(imgData, 'PNG', centeringX, margin + hHeight + 5, newWidth, maxContentH);
+            } else {
+                pdf.addImage(imgData, 'PNG', margin, margin + hHeight + 5, printW, imgHeight);
+            }
+            
+            // Add Text Footer
+            pdf.setFontSize(7);
+            pdf.setTextColor(100);
+            const footerText = "Medical Disclaimer: Lista App - Verify all doses. Dr. Abdow Whatsapp: +201550086024";
+            pdf.text(footerText, pdfW / 2, pdfH - 10, { align: "center" });
+        }
+        
+        pdf.save(`Anesthesia_List_${listMeta.date}.pdf`);
+    }
+
     async function saveImage(mode) {
         const area = document.getElementById('capture-area');
         
-        // Handle Nurse Mode (Hide clinical details)
         if (mode === 'nurse') {
             document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'none');
             document.getElementById('out-list-name').innerText += " (Management Copy)";
@@ -599,7 +725,6 @@
         } catch (e) {
             alert("Error saving image.");
         } finally {
-            // Restore view
             if (mode === 'nurse') {
                 document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'block');
                 document.getElementById('out-list-name').innerText = listMeta.name;
