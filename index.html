@@ -701,11 +701,11 @@
             // Add Text Footer
             pdf.setFontSize(7);
             pdf.setTextColor(100);
-            const footerText = "Medical Disclaimer: Lista App - Verify all doses. Dr. Abdow Whatsapp: +201550086024";
+            const footerText = "Medical Disclaimer: Lista App - Verify all doses. By Dr. Abdow Whatsapp: +201550086024";
             pdf.text(footerText, pdfW / 2, pdfH - 10, { align: "center" });
         }
         
-        pdf.save(`Anesthesia_List_${listMeta.date}.pdf`);
+        pdf.save(`${listMeta.name.replace(/\s+/g, '_')}_${listMeta.date}.pdf`);
     }
 
     async function saveImage(mode) {
@@ -734,3 +734,4 @@
 </script>
 </body>
 </html>
+
