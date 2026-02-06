@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lista</title>
+    <title>Anesthesia Theater Coordinator Pro</title>
     <meta name="theme-color" content="#1a1a1a">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -35,7 +35,7 @@
         header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
         h1 { margin: 0; color: var(--primary); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* FORMS - Bright Styling */
+        /* FORMS */
         .card { 
             background: var(--card-bg); 
             color: var(--text-main);
@@ -50,17 +50,31 @@
             width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; 
             background: var(--input-bg); color: #333; font-size: 1rem; box-sizing: border-box; 
         }
+        /* Make auto-filled weight look solid */
+        input#pWeight { color: #000; font-weight: 700; }
+
         .row { display: flex; gap: 10px; }
         .col { flex: 1; }
 
+        /* SUGGESTION CHIPS */
+        .chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .chip {
+            padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; user-select: none; transition: 0.2s;
+        }
+        .chip:active { transform: scale(0.95); opacity: 0.8; }
+        .chip-red { background: #ffe5e5; color: #d00000; border: 1px solid #ffccd5; }
+        .chip-blue { background: #e0fbfc; color: #0077b6; border: 1px solid #caf0f8; }
+        .chip-green { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+
         /* BUTTONS */
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; color: white; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: var(--primary); }
         .btn-secondary { background: #4361ee; }
         .btn-success { background: #2a9d8f; }
         .btn-danger { background: #d90429; }
         .btn-nurse { background: #f77f00; }
+        .btn-share { background: #25d366; } /* Whatsapp Green-ish */
         button:active { transform: scale(0.98); }
 
         /* VIEWS */
@@ -76,7 +90,6 @@
             overflow: hidden; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             position: relative;
-            /* No page-break forced here, handled by JS for perfect fit */
         }
         .pc-header { 
             background: #e9ecef; padding: 10px 15px; border-left: 6px solid var(--primary); display: flex; justify-content: space-between; align-items: center;
@@ -89,7 +102,7 @@
         .highlight-data { font-size: 1.1rem; font-weight: 900; color: #000; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
         .highlight-val { color: var(--primary); background: #fff3cd; padding: 0 4px; border-radius: 4px; }
 
-        /* UPDATED NOTES & REQUESTS STYLING */
+        /* NOTES & REQUESTS TAGS */
         .tags-wrapper { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 5px; }
         .tag-note { 
             background: #ffe5e5; color: #d00000; padding: 4px 8px; 
@@ -140,6 +153,7 @@
             text-align: center;
             border-top: 1px solid #ddd;
             border-radius: 8px;
+            display: none; 
         }
         .app-footer a { color: var(--primary); text-decoration: none; font-weight: bold; }
 
@@ -157,7 +171,7 @@
         <div class="card">
             <div class="form-group">
                 <label>List Name / Theater</label>
-                <input type="text" id="listName" placeholder="e.g. مستشفى الجراحات, سيكتور 1">
+                <input type="text" id="listName" placeholder="e.g. Sector 1, TNSH 1 ...">
             </div>
             <div class="form-group">
                 <label>Date</label>
@@ -238,11 +252,29 @@
             </div>
             <div class="form-group">
                 <label>Positive Data / Allergies / Notes</label>
-                <textarea id="pNotes" placeholder="Hb 8, Htn, Dm on insulin..."></textarea>
+                <textarea id="pNotes" placeholder="Htn, Hb 8 ..."></textarea>
+                <div class="chips-container">
+                    <div class="chip chip-green" onclick="setFree()">Free</div>
+                    <div class="chip chip-red" onclick="addTag('pNotes', 'Htn')">Htn</div>
+                    <div class="chip chip-red" onclick="addTag('pNotes', 'Dm')">Dm</div>
+                    <div class="chip chip-red" onclick="addTag('pNotes', 'Cardiac')">Cardiac</div>
+                    <div class="chip chip-red" onclick="addTag('pNotes', 'Anemia')">Anemia</div>
+                    <div class="chip chip-red" onclick="addTag('pNotes', 'Coagulopathy')">Coagulopathy</div>
+                    <div class="chip chip-red" onclick="addTag('pNotes', 'Asthma')">Asthma</div>
+                    <div class="chip chip-red" onclick="addTag('pNotes', 'Smoker')">Smoker</div>
+                </div>
             </div>
             <div class="form-group">
-                <label>Requests (Blood, Plasma, ICU, etc)</label>
-                <input type="text" id="pRequests" placeholder="1 blood, 1 plasma, ICU...">
+                <label>Requests</label>
+                <input type="text" id="pRequests" placeholder="blood, plasma...">
+                <div class="chips-container">
+                    <div class="chip chip-blue" onclick="addTag('pRequests', '1 Blood')">1 Blood</div>
+                    <div class="chip chip-blue" onclick="addTag('pRequests', '2 Blood')">2 Blood</div>
+                    <div class="chip chip-blue" onclick="addTag('pRequests', '1 Plasma')">1 Plasma</div>
+                    <div class="chip chip-blue" onclick="addTag('pRequests', '2 Plasma')">2 Plasma</div>
+                    <div class="chip chip-blue" onclick="addTag('pRequests', 'HRC')">HRC</div>
+                    <div class="chip chip-blue" onclick="addTag('pRequests', 'ICU')">ICU</div>
+                </div>
             </div>
 
             <div class="btn-group">
@@ -271,7 +303,7 @@
 
             <div id="list-container" style="padding: 10px;"></div>
 
-            <div class="app-footer">
+            <div class="app-footer" id="main-footer">
                 <p style="margin: 0 0 5px 0; font-weight: bold;">MEDICAL DISCLAIMER</p>
                 <p style="margin: 0 0 10px 0; font-style: italic;">
                     This list was made by Lista app and it is for organizing the theater and calculations aid for healthcare professionals. 
@@ -288,13 +320,15 @@
         <div class="card" style="margin-top:20px; background: #2b2b2b; color:white;">
             <label>Saving Options</label>
             <div class="btn-group">
-                <button class="btn-primary" onclick="downloadPDF()">📄 Save as PDF (Full Anesthesia)</button>
+                <button class="btn-primary" onclick="generateContent('pdf', 'download')">⬇️ Full</button>
+                <button class="btn-share" onclick="generateContent('pdf', 'share')">📲 Share PDF</button>
             </div>
             <div class="btn-group" style="margin-top:10px;">
-                <button class="btn-nurse" onclick="saveImage('nurse')">📸 Save Management Photo</button>
+                <button class="btn-nurse" onclick="generateContent('img', 'download')">⬇️ Brief</button>
+                <button class="btn-share" onclick="generateContent('img', 'share')">📲 Share Photo</button>
             </div>
             <p style="font-size:0.7rem; color:#aaa; text-align:center; margin-top:5px;">
-                "Management" version hides drugs, fluids & airway details.
+                Brief photo hides drugs/fluids. PDF contains full data.
             </p>
         </div>
     </div>
@@ -302,9 +336,22 @@
 
 <script>
     // --- HELPERS ---
-    // Format number to remove trailing zeros (e.g. 140.00 -> 140)
-    function fmtNum(n) {
-        return parseFloat(n.toFixed(2));
+    function fmtNum(n) { return parseFloat(n.toFixed(2)); }
+
+    function addTag(fieldId, text) {
+        const el = document.getElementById(fieldId);
+        // If it was "Free", clear it first
+        if(el.value === "Free") el.value = "";
+        
+        let val = el.value.trim();
+        if(val.endsWith(',')) val = val.slice(0, -1);
+        
+        if (val.length > 0) el.value = val + ", " + text;
+        else el.value = text;
+    }
+
+    function setFree() {
+        document.getElementById('pNotes').value = "Free";
     }
 
     // --- DATA STORE ---
@@ -336,13 +383,18 @@
 
     function estimateWeight() {
         const age = parseFloat(document.getElementById('pAge').value);
+        const wInput = document.getElementById('pWeight');
+        
         if(!age && age !== 0) return;
+        
         let w = 0;
         if (age < 1) w = (age * 12 + 9) / 2; 
         else if (age <= 8) w = (age * 2) + 8;
         else if (age < 18) w = (age * 3) + 7;
         else w = 70;
-        document.getElementById('pWeight').placeholder = `Est: ${w.toFixed(1)} kg`;
+
+        // Automatically write the value in Black (Value) not just placeholder
+        wInput.value = w.toFixed(1);
     }
 
     function clearForm() {
@@ -372,11 +424,16 @@
         const type = document.getElementById('pType').value;
         const nerve = document.getElementById('pNerve').value;
         const req = document.getElementById('pRequests').value;
-        const notes = document.getElementById('pNotes').value;
+        let notes = document.getElementById('pNotes').value;
 
         if(!name || isNaN(age) || !op) {
             alert("Name, Age, and Operation are required.");
             return;
+        }
+
+        // Auto "Free" if empty
+        if (!notes || notes.trim() === "") {
+            notes = "Free";
         }
 
         let estimated = false;
@@ -445,6 +502,48 @@
         else return `1 drop / ${(1/dropsPerSec).toFixed(0)}s`;
     }
 
+    function getBlockSuggestion(blockType, weight, age) {
+        let ibw = 70;
+        if (age < 1) ibw = (age * 12 + 9) / 2;
+        else if (age <= 8) ibw = (age * 2) + 8;
+        else if (age < 18) ibw = (age * 3) + 7;
+        
+        const safetyWeight = (weight > ibw * 1.3) ? ibw : weight;
+        const maxMg = 2 * safetyWeight;
+
+        let vol = 20; 
+        let conc = 0.5;
+
+        switch(blockType) {
+            case 'Interscalene':
+            case 'Supraclav':
+            case 'Infraclav':
+            case 'Axillary':
+            case 'Femoro-sciatic':
+            case 'Femoro-popliteal':
+                vol = 20; conc = 0.5; break;
+            case 'Tap':
+            case 'ESP':
+            case 'Serratus':
+            case 'Illiacus':
+                vol = 30; conc = 0.25; break;
+            default:
+                vol = 20; conc = 0.25;
+        }
+
+        if (safetyWeight < 30) {
+            vol = safetyWeight * 0.5; 
+        }
+
+        let proposedMg = vol * conc * 10;
+        if (proposedMg > maxMg) {
+            vol = maxMg / (conc * 10);
+            proposedMg = vol * conc * 10;
+        }
+
+        return { vol: fmtNum(vol), conc: conc, mg: fmtNum(proposedMg), maxMg: fmtNum(maxMg) };
+    }
+
     function calculate(p) {
         const w = p.weight;
         const age = p.age;
@@ -483,55 +582,44 @@
         let drugs = [];
         const isSedation = p.type === 'Sedation';
 
-        // Propofol
         let pFactor = isSedation ? 1.0 : (age < 12 ? 3 : 2);
         let pDose = (isSedation ? w : (age < 12 ? w : w_ind)) * pFactor;
         let pLabel = isSedation ? "Propofol (Sedation)" : "Propofol";
         drugs.push({cat: "Induction", name: pLabel, prep: "10mg/mL", dose: pDose, unit: "mg", ml: pDose/10, badge: isSedation ? "TBW" : (age<12?"TBW":"ABW")});
 
-        // NMB & Fentanyl
         drugs.push({cat: "Induction", name: "Fentanyl", prep: "10mcg/mL", dose: w*1.5, unit: "mcg", ml: (w*1.5)/10, badge: "TBW"});
         drugs.push({cat: "Induction", name: "Atracurium", prep: "5mg/mL", dose: w_nmb*0.5, unit: "mg", ml: (w_nmb*0.5)/5, badge: isObese?"IBW":"TBW"});
         drugs.push({cat: "Induction", name: "Rocuronium", prep: "10mg/mL", dose: w_nmb*0.6, unit: "mg", ml: (w_nmb*0.6)/10, badge: isObese?"IBW":"TBW"});
-        
-        // Sugammadex (Diluted 100mg/10ml -> 10mg/ml)
         drugs.push({cat: "Induction", name: "Sugammadex", prep: "100mg/10mL", dose: w_nmb*2, unit: "mg", ml: (w_nmb*2)/10, badge: "IBW"});
 
-        // Co-Analgesia
-        // Dexamethasone (Diluted 4mg/10ml -> 0.4mg/ml)
         let dexDose = (age >= 18) ? 8 : Math.min(w*0.15, 10);
         drugs.push({cat: "Co-Analgesia", name: "Dexamethasone", prep: "4mg/10mL", dose: dexDose, unit: "mg", ml: dexDose/0.4, badge: "Fixed"});
         
         let paraDose = Math.min(w*15, 1000);
         drugs.push({cat: "Co-Analgesia", name: "Paracetamol", prep: "10mg/mL", dose: paraDose, unit: "mg", ml: paraDose/10, badge: "TBW"});
 
-        // Reversal / Emergency
         let neoDose = Math.min(ibw*0.05, 5);
         drugs.push({cat: "Reversal", name: "Neostigmine", prep: "2.5mg/10mL", dose: neoDose, unit: "mg", ml: neoDose/0.25, badge: "IBW"});
         
-        // Atropine moved to Emergency, Adrenaline removed
         let ephDose = Math.min(ibw*0.1, 6);
         drugs.push({cat: "Emergency", name: "Ephedrine", prep: "3mg/mL (Diluted)", dose: ephDose, unit: "mg", ml: ephDose/3, badge: "Max IBW"});
         
-        // Atropine
         drugs.push({cat: "Emergency", name: "Atropine", prep: "0.1mg/mL", dose: Math.max(neoDose*0.4, 0.1), unit: "mg", ml: (Math.max(neoDose*0.4, 0.1))/0.1, badge: "Mix"});
 
-        // --- FILTERING LOGIC ---
-        // If Spinal: Remove specific drugs
-        if (p.type === 'Spinal') {
-            const blocked = ['Propofol', 'Atracurium', 'Rocuronium', 'Neostigmine', 'Sugammadex'];
-            drugs = drugs.filter(d => !blocked.includes(d.name) && !d.name.includes('Propofol'));
-        } 
-        
-        // Limits
         let lidoMax = ibw * 3;
         let marcMax = ibw * 2;
+        
+        let blockData = null;
+        if (p.nerve && p.nerve !== 'None') {
+            blockData = getBlockSuggestion(p.nerve, w, age);
+        }
 
         return {
             ett: ettVal, blade: bladeText, depth: depthVal,
             maint, rate1st, rate2nd, rate3rd,
             drugs,
-            lidoMax, marcMax
+            lidoMax, marcMax,
+            blockData
         };
     }
 
@@ -539,6 +627,9 @@
     function generateView() {
         document.getElementById('view-input').classList.remove('active-view');
         document.getElementById('view-output').classList.add('active-view');
+
+        // Show disclaimer in view (at bottom)
+        document.getElementById('main-footer').style.display = 'block';
 
         patients.sort((a, b) => {
             let sA = 0, sB = 0;
@@ -562,7 +653,7 @@
             const calcs = calculate(p);
             
             // NOTE & REQUEST TAGS
-            let noteHtml = p.notes.split(',').filter(x=>x.trim()).map(n => `<span class="tag-note">${n.trim()}</span>`).join('');
+            let noteHtml = p.notes.split(',').filter(x=>x.trim()).map(n => `<span class="tag-note" ${n.trim() === 'Free' ? 'style="background:#d4edda; color:#155724; border-color:#c3e6cb;"' : ''}>${n.trim()}</span>`).join('');
             let reqHtml = p.req.split(',').filter(x=>x.trim()).map(r => `<span class="tag-req">${r.trim()}</span>`).join('');
 
             // Drug Rows
@@ -589,14 +680,18 @@
 
             // NERVE BLOCK HIGHLIGHT
             let blockHtml = "";
-            if(p.nerve && p.nerve !== 'None') {
-                let safeMaxBupi = (2 * p.weight); 
-                let safeMaxVol = safeMaxBupi / 5;
+            if(calcs.blockData) {
+                const bd = calcs.blockData;
                 blockHtml = `
                 <div style="background:#e0fbfc; padding:10px; margin-top:10px; border:2px solid #0077b6; border-radius:8px; color:#0077b6;">
                     <strong style="font-size:0.9rem;">📍 BLOCK: ${p.nerve}</strong><br>
-                    <span style="font-size:0.8rem; color:#023e8a;">Recommended Bupivacaine 0.5%:</span> 
-                    <span style="font-weight:900; font-size:1rem; color:#ef233c;">Max ${fmtNum(safeMaxVol)} ml (${fmtNum(safeMaxBupi)}mg)</span>
+                    <span style="font-size:0.8rem; color:#023e8a;">Suggestion:</span> 
+                    <span style="font-weight:900; font-size:1rem; color:#ef233c;">
+                        ${bd.vol} mL of Bupivacaine ${bd.conc}%
+                    </span>
+                    <div style="font-size:0.7rem; margin-top:3px; color:#555;">
+                        (Contains ${bd.mg}mg. Safe Max: ${bd.maxMg}mg)
+                    </div>
                 </div>`;
             }
 
@@ -654,87 +749,143 @@
         });
     }
 
-    // --- SAVING ---
-    async function downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfW = pdf.internal.pageSize.getWidth();
-        const pdfH = pdf.internal.pageSize.getHeight();
-        const margin = 10;
-        const printW = pdfW - (margin * 2);
+   // --- GENERIC EXPORT/SHARE HANDLER ---
+    async function generateContent(type, action) {
+        // type: 'pdf' or 'img'
+        // action: 'download' or 'share'
 
-        const cards = document.querySelectorAll('.patient-card');
-        const header = document.getElementById('final-list-header');
+        // <--- FIX START: ALLOW ARABIC BUT REMOVE ILLEGAL CHARS --->
+        const safeName = listMeta.name.replace(/[\\/:*?"<>|]/g, '_') || "Theater_List";
+        // <--- FIX END --->
 
-        // Create Header Image Once
-        const headerCanvas = await html2canvas(header, { scale: 2 });
-        const hImg = headerCanvas.toDataURL('image/png');
-        const hRatio = headerCanvas.height / headerCanvas.width;
-        const hHeight = printW * hRatio;
+        const fileName = `${safeName}_${listMeta.date}`;
 
-        for(let i=0; i<cards.length; i++) {
-            if (i > 0) pdf.addPage();
-
-            // Add Header on every page
-            pdf.addImage(hImg, 'PNG', margin, margin, printW, hHeight);
-
-            // Add Patient
-            const canvas = await html2canvas(cards[i], { scale: 2, useCORS: true });
-            const imgData = canvas.toDataURL('image/png');
-            const imgProps = pdf.getImageProperties(imgData);
-            
-            // Calculate height to fit without cropping
-            let imgHeight = (imgProps.height * printW) / imgProps.width;
-            
-            // If card is extremely long (unlikely with this data, but possible), scale it down to fit one page
-            const maxContentH = pdfH - (margin * 2) - hHeight - 20; // 20 for footer space
-            if (imgHeight > maxContentH) {
-                // Resize width to keep aspect ratio fit in height
-                const scaleFactor = maxContentH / imgHeight;
-                const newWidth = printW * scaleFactor;
-                const centeringX = margin + (printW - newWidth) / 2;
-                pdf.addImage(imgData, 'PNG', centeringX, margin + hHeight + 5, newWidth, maxContentH);
-            } else {
-                pdf.addImage(imgData, 'PNG', margin, margin + hHeight + 5, printW, imgHeight);
-            }
-            
-            // Add Text Footer
-            pdf.setFontSize(7);
-            pdf.setTextColor(100);
-            const footerText = "Medical Disclaimer: Lista App - Verify all doses. By Dr. Abdow Whatsapp: +201550086024";
-            pdf.text(footerText, pdfW / 2, pdfH - 10, { align: "center" });
-        }
-        
-        pdf.save(`${listMeta.name.replace(/\s+/g, '_')}_${listMeta.date}.pdf`);
-    }
-
-    async function saveImage(mode) {
         const area = document.getElementById('capture-area');
+        const header = document.getElementById('final-list-header');
+        const footer = document.getElementById('main-footer');
         
-        if (mode === 'nurse') {
-            document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'none');
-            document.getElementById('out-list-name').innerText += " (Management Copy)";
+        // Hide clinical data if image (Management Copy)
+        if (type === 'img') {
+             document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'none');
         }
 
         try {
-            const canvas = await html2canvas(area, { scale: 2, useCORS: true });
-            const link = document.createElement('a');
-            link.download = `${listMeta.name.replace(/\s+/g, '_')}_${listMeta.date}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-        } catch (e) {
-            alert("Error saving image.");
-        } finally {
-            if (mode === 'nurse') {
-                document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'block');
-                document.getElementById('out-list-name').innerText = listMeta.name;
+            if (type === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const cards = document.querySelectorAll('.patient-card');
+
+                // 1. MEASURE DIMENSIONS FROM THE FIRST CARD TO SET PDF WIDTH
+                // This ensures the PDF is exactly the width of the card (perfect for mobile)
+                // We assume all cards are roughly same width in DOM
+                const cardRect = cards[0].getBoundingClientRect();
+                const cardWidthPx = cardRect.width;
+                // PDF Unit: Points. 1px approx 0.75pt. Let's just use 'px' unit in jsPDF for simplicity.
+                // We add a small margin (20px total)
+                const pdfWidth = cardWidthPx + 20;
+                
+                // Initialize PDF with custom width
+                // Height doesn't matter much as we add pages, but let's start with a long strip aspect
+                const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [pdfWidth, 800] }); // Height adjusts auto mostly or we add pages
+
+                // Helper to get image data
+                const getImg = async (el) => {
+                    const c = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                    return { data: c.toDataURL('image/jpeg', 0.9), w: c.width, h: c.height };
+                };
+
+                const hData = await getImg(header);
+                const fData = await getImg(footer);
+
+                // Calculate display heights based on PDF width
+                const hHeight = (hData.h * (pdfWidth - 20)) / hData.w;
+                const fHeight = (fData.h * (pdfWidth - 20)) / fData.w;
+
+                for (let i = 0; i < cards.length; i++) {
+                    const cData = await getImg(cards[i]);
+                    const cHeight = (cData.h * (pdfWidth - 20)) / cData.w;
+
+                    // Calculate total page height needed for this specific patient
+                    // First page: Header + Card. Last page: Card + Footer. Middle: Card.
+                    let pageH = cHeight + 20; // margins
+                    if (i === 0) pageH += hHeight + 5;
+                    if (i === cards.length - 1) pageH += fHeight + 5;
+
+                    // Set current page size to match content exactly
+                    pdf.setPage(i + 1);
+                    pdf.internal.pageSize.width = pdfWidth;
+                    pdf.internal.pageSize.height = pageH;
+                    
+                    let currY = 10;
+                    
+                    // Add Header
+                    if (i === 0) {
+                        pdf.addImage(hData.data, 'JPEG', 10, currY, pdfWidth - 20, hHeight);
+                        currY += hHeight + 5;
+                    }
+
+                    // Add Card
+                    pdf.addImage(cData.data, 'JPEG', 10, currY, pdfWidth - 20, cHeight);
+                    currY += cHeight + 5;
+
+                    // Add Footer
+                    if (i === cards.length - 1) {
+                        pdf.addImage(fData.data, 'JPEG', 10, currY, pdfWidth - 20, fHeight);
+                    }
+
+                    // Add new page if not last
+                    if (i < cards.length - 1) pdf.addPage([pdfWidth, 800]); // dimensions updated in next loop
+                }
+
+                if (action === 'download') {
+                    pdf.save(`${fileName}.pdf`);
+                } else if (action === 'share') {
+                    const pdfBlob = pdf.output('blob');
+                    const file = new File([pdfBlob], `${fileName}.pdf`, { type: 'application/pdf' });
+                    await shareFile(file);
+                }
+
+            } else {
+                // IMAGE GENERATION
+                const canvas = await html2canvas(area, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                
+                if (action === 'download') {
+                    const link = document.createElement('a');
+                    link.download = `${fileName}.jpg`;
+                    link.href = canvas.toDataURL('image/jpeg', 0.9);
+                    link.click();
+                } else if (action === 'share') {
+                    canvas.toBlob(async (blob) => {
+                        const file = new File([blob], `${fileName}.jpg`, { type: 'image/jpeg' });
+                        await shareFile(file);
+                    }, 'image/jpeg', 0.9);
+                }
             }
+
+        } catch (e) {
+            console.error(e);
+            alert("Error generating content. Please try again.");
+        } finally {
+            if (type === 'img') {
+                document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'block');
+            }
+        }
+    }
+
+    async function shareFile(file) {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: listMeta.name,
+                    text: `Theater List: ${listMeta.date}`
+                });
+            } catch (error) {
+                if (error.name !== 'AbortError') alert('Error sharing file: ' + error.message);
+            }
+        } else {
+            alert("Web Share API not supported on this browser or context (requires HTTPS). Please use Download.");
         }
     }
 </script>
 </body>
 </html>
-
-
-
-
