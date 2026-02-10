@@ -33,7 +33,7 @@
 
         /* HEADER */
         header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
-        h1 { margin: 0; color: var(--primary); font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { margin: 0; color: var(--primary); font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; }
 
         /* FORMS */
         .card { 
@@ -65,6 +65,9 @@
         .chip-red { background: #ffe5e5; color: #d00000; border: 1px solid #ffccd5; }
         .chip-blue { background: #e0fbfc; color: #0077b6; border: 1px solid #caf0f8; }
         .chip-green { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        
+        /* High Priority Chips */
+        .chip-alert { background: #370617; color: #fff; border: 1px solid #d00000; }
 
         /* BUTTONS */
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
@@ -101,6 +104,7 @@
         
         .highlight-data { font-size: 1.1rem; font-weight: 900; color: #000; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
         .highlight-val { color: var(--primary); background: #fff3cd; padding: 0 4px; border-radius: 4px; }
+        .est-tag { font-size: 0.7rem; color: #999; vertical-align: middle; margin-left: 2px; }
 
         /* NOTES & REQUESTS TAGS */
         .tags-wrapper { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 5px; }
@@ -108,6 +112,12 @@
             background: #ffe5e5; color: #d00000; padding: 4px 8px; 
             border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #ffccd5;
         }
+        /* HIGH ALERT NOTE STYLE */
+        .tag-alert {
+            background: #d90429; color: #fff; padding: 6px 10px;
+            border-radius: 6px; font-size: 0.9rem; font-weight: 900; border: 2px solid #8d99ae;
+        }
+        
         .tag-req { 
             background: #e0fbfc; color: #0077b6; padding: 4px 8px; 
             border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #caf0f8;
@@ -171,23 +181,23 @@
         <div class="card">
             <div class="form-group">
                 <label>List Name / Theater</label>
-                <input type="text" id="listName" placeholder="e.g. Sector 1, TNSH 1 ...">
+                <input type="text" id="listName" placeholder="TNSH1, Sector 1 .." oninput="autoSave()">
             </div>
             <div class="form-group">
                 <label>Date</label>
-                <input type="date" id="listDate">
+                <input type="date" id="listDate" onchange="autoSave()">
             </div>
             <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label>Surgeons</label>
-                        <input type="text" id="surgeons" placeholder="Dr.">
+                        <input type="text" id="surgeons" placeholder="Dr." oninput="autoSave()">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label>Anesthesiologists</label>
-                        <input type="text" id="anesthetists" placeholder="Dr.">
+                        <input type="text" id="anesthetists" placeholder="Dr." oninput="autoSave()">
                     </div>
                 </div>
             </div>
@@ -203,6 +213,8 @@
             </div>
             
             <input type="hidden" id="pId"> 
+            <input type="hidden" id="pIsEst" value="false">
+
             <div class="form-group">
                 <label>Patient Name</label>
                 <input type="text" id="pName">
@@ -252,16 +264,16 @@
             </div>
             <div class="form-group">
                 <label>Positive Data / Allergies / Notes</label>
-                <textarea id="pNotes" placeholder="Htn, Hb 8 ..."></textarea>
+                <textarea id="pNotes" placeholder="Htn on ACEI, Hb8 .."></textarea>
                 <div class="chips-container">
                     <div class="chip chip-green" onclick="setFree()">Free</div>
+                    <div class="chip chip-alert" onclick="addTag('pNotes', 'Cardiac')">Cardiac</div>
+                    <div class="chip chip-alert" onclick="addTag('pNotes', 'Difficult Intubation')">Diff. Airway</div>
+                    <div class="chip chip-alert" onclick="addTag('pNotes', 'HCV +ve')">HCV +ve</div>
                     <div class="chip chip-red" onclick="addTag('pNotes', 'Htn')">Htn</div>
                     <div class="chip chip-red" onclick="addTag('pNotes', 'Dm')">Dm</div>
-                    <div class="chip chip-red" onclick="addTag('pNotes', 'Cardiac')">Cardiac</div>
-                     <div class="chip chip-red" onclick="addTag('pNotes', 'Difficult Intubation')">Difficult Intubation</div>
                     <div class="chip chip-red" onclick="addTag('pNotes', 'Anemia')">Anemia</div>
                     <div class="chip chip-red" onclick="addTag('pNotes', 'Coagulopathy')">Coagulopathy</div>
-                    <div class="chip chip-red" onclick="addTag('pNotes', 'Asthma')">Asthma</div>
                     <div class="chip chip-red" onclick="addTag('pNotes', 'Smoker')">Smoker</div>
                 </div>
             </div>
@@ -269,6 +281,7 @@
                 <label>Requests</label>
                 <input type="text" id="pRequests" placeholder="blood, plasma...">
                 <div class="chips-container">
+                    <div class="chip chip-blue" onclick="addTag('pRequests', 'RBS Peri-op')">RBS</div>
                     <div class="chip chip-blue" onclick="addTag('pRequests', '1 Blood')">1 Blood</div>
                     <div class="chip chip-blue" onclick="addTag('pRequests', '2 Blood')">2 Blood</div>
                     <div class="chip chip-blue" onclick="addTag('pRequests', '1 Plasma')">1 Plasma</div>
@@ -291,13 +304,13 @@
     <div id="view-output" class="view-section">
         <div style="display:flex; gap:10px; margin-bottom:15px;">
             <button class="btn-primary" onclick="goToInput()">➕ Add More</button>
-            <button class="btn-danger" onclick="location.reload()">🔄 Reset All</button>
+            <button class="btn-danger" onclick="resetApp()">🔄 Reset All</button>
         </div>
 
         <div id="capture-area" style="background: #ffffff; padding: 0; border-radius: 5px;">
             
             <div id="final-list-header">
-                <h2 id="out-list-name">Theater List</h2>
+                <h2 id="out-list-name">Lista Theater</h2>
                 <p><span id="out-date"></span> | <span id="out-team"></span></p>
                 <p style="font-size:0.9rem; margin-top:5px; color:#ef233c;">Total Patients: <span id="out-count">0</span></p>
             </div>
@@ -321,15 +334,15 @@
         <div class="card" style="margin-top:20px; background: #2b2b2b; color:white;">
             <label>Saving Options</label>
             <div class="btn-group">
-                <button class="btn-primary" onclick="generateContent('pdf', 'download')">⬇️ Full</button>
+                <button class="btn-primary" onclick="generateContent('pdf', 'download')">⬇️ PDF</button>
                 <button class="btn-share" onclick="generateContent('pdf', 'share')">📲 Share PDF</button>
             </div>
             <div class="btn-group" style="margin-top:10px;">
-                <button class="btn-nurse" onclick="generateContent('img', 'download')">⬇️ Brief</button>
+                <button class="btn-nurse" onclick="generateContent('img', 'download')">⬇️ Photo</button>
                 <button class="btn-share" onclick="generateContent('img', 'share')">📲 Share Photo</button>
             </div>
             <p style="font-size:0.7rem; color:#aaa; text-align:center; margin-top:5px;">
-                Brief photo hides drugs/fluids. PDF contains full data.
+                "Management" photo hides drugs/fluids. PDF contains full data.
             </p>
         </div>
     </div>
@@ -349,6 +362,12 @@
         
         if (val.length > 0) el.value = val + ", " + text;
         else el.value = text;
+
+        // Auto Logic: DM -> RBS
+        if(text === "Dm") {
+            const req = document.getElementById('pRequests');
+            if(!req.value.includes("RBS")) addTag('pRequests', "RBS Peri-op");
+        }
     }
 
     function setFree() {
@@ -360,20 +379,50 @@
     let patients = [];
     let editMode = false;
 
-    // --- INIT ---
+    // --- AUTO SAVE / RESTORE ---
     window.onload = function() {
-        const tmr = new Date();
-        tmr.setDate(tmr.getDate() + 1); 
-        document.getElementById('listDate').valueAsDate = tmr;
+        // Try load from storage
+        const savedMeta = localStorage.getItem('lista_meta');
+        const savedPatients = localStorage.getItem('lista_patients');
+
+        if(savedMeta) {
+            listMeta = JSON.parse(savedMeta);
+            document.getElementById('listName').value = listMeta.name;
+            document.getElementById('listDate').value = listMeta.date;
+            document.getElementById('surgeons').value = listMeta.surgeons;
+            document.getElementById('anesthetists').value = listMeta.anesthetists;
+        } else {
+            const tmr = new Date();
+            tmr.setDate(tmr.getDate() + 1); 
+            document.getElementById('listDate').valueAsDate = tmr;
+        }
+
+        if(savedPatients) {
+            patients = JSON.parse(savedPatients);
+            document.getElementById('count-badge').innerText = patients.length;
+        }
     };
 
-    // --- NAVIGATION ---
-    function goToInput() {
-        listMeta.name = document.getElementById('listName').value || "Theater List";
+    function autoSave() {
+        listMeta.name = document.getElementById('listName').value;
         listMeta.date = document.getElementById('listDate').value;
         listMeta.surgeons = document.getElementById('surgeons').value;
         listMeta.anesthetists = document.getElementById('anesthetists').value;
+        
+        localStorage.setItem('lista_meta', JSON.stringify(listMeta));
+        localStorage.setItem('lista_patients', JSON.stringify(patients));
+    }
 
+    function resetApp() {
+        if(confirm("Start a new list? This will clear all current data.")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // --- NAVIGATION ---
+    function goToInput() {
+        autoSave();
         document.getElementById('view-setup').classList.remove('active-view');
         document.getElementById('view-output').classList.remove('active-view');
         document.getElementById('view-input').classList.add('active-view');
@@ -395,7 +444,8 @@
         else w = 70;
 
         // Automatically write the value in Black (Value) not just placeholder
-        wInput.value = w.toFixed(1);
+        wInput.value = parseFloat(w.toFixed(1)); // No .0
+        document.getElementById('pIsEst').value = "true";
     }
 
     function clearForm() {
@@ -408,6 +458,8 @@
         document.getElementById('pRequests').value = "";
         document.getElementById('pNotes').value = "";
         document.getElementById('pWeight').placeholder = "Auto-Est if empty";
+        document.getElementById('pIsEst').value = "false";
+
         document.getElementById('btnAddParam').innerText = "➕ Add to List";
         document.getElementById('btnAddParam').classList.remove('btn-success');
         document.getElementById('btnAddParam').classList.add('btn-secondary');
@@ -437,9 +489,9 @@
             notes = "Free";
         }
 
-        let estimated = false;
+        let isEst = document.getElementById('pIsEst').value === "true";
         if (!weight) {
-            estimated = true;
+            isEst = true;
             if (age < 1) weight = (age * 12 + 9) / 2; 
             else if (age <= 8) weight = (age * 2) + 8;
             else if (age < 18) weight = (age * 3) + 7;
@@ -448,7 +500,7 @@
 
         const pObj = {
             id: idVal ? parseInt(idVal) : Date.now(),
-            name, age, weight, estimated, op, type, nerve, req, notes
+            name, age, weight, estimated: isEst, op, type, nerve, req, notes
         };
 
         if(editMode && idVal) {
@@ -459,6 +511,7 @@
             patients.push(pObj);
         }
 
+        autoSave();
         clearForm();
         document.getElementById('count-badge').innerText = patients.length;
         document.getElementById('pName').focus();
@@ -467,6 +520,7 @@
     function deletePatient(id) {
         if(confirm("Delete this patient?")) {
             patients = patients.filter(p => p.id !== id);
+            autoSave();
             generateView(); 
         }
     }
@@ -488,6 +542,7 @@
         document.getElementById('pNerve').value = p.nerve;
         document.getElementById('pRequests').value = p.req;
         document.getElementById('pNotes').value = p.notes;
+        document.getElementById('pIsEst').value = p.estimated ? "true" : "false";
         
         document.getElementById('btnAddParam').innerText = "💾 Update Patient";
         document.getElementById('btnAddParam').classList.remove('btn-secondary');
@@ -573,11 +628,18 @@
         let depthVal = (age < 1) ? (w + 6).toFixed(1) : (age >= 18 ? "21-23" : (((age/4)+4)*3).toFixed(0));
 
         // Fluid Logic
-        let maint = (w <= 10) ? (w * 4) : (w <= 20 ? (40 + (w-10)*2) : (60 + (w-20)));
-        let deficit = maint * 6;
-        let rate1st = maint + (deficit * 0.5); 
-        let rate2nd = maint + (deficit * 0.25); 
-        let rate3rd = maint + (deficit * 0.25); 
+        // Base Maint (4/2/1)
+        let baseMaint = (w <= 10) ? (w * 4) : (w <= 20 ? (40 + (w-10)*2) : (60 + (w-20)));
+        let deficit = baseMaint * 6; // Standard deficit calculation
+
+        // Modifiers applied to the Hourly Rate
+        let finalMaint = baseMaint;
+        if(p.type === 'Spinal') finalMaint = finalMaint * 1.15; // +15%
+        if(p.notes.toLowerCase().includes('cardiac')) finalMaint = finalMaint * 0.8; // -20%
+
+        let rate1st = finalMaint + (deficit * 0.5); 
+        let rate2nd = finalMaint + (deficit * 0.25); 
+        // 3rd is same as 2nd
 
         // Drugs Logic
         let drugs = [];
@@ -599,13 +661,19 @@
         let paraDose = Math.min(w*15, 1000);
         drugs.push({cat: "Co-Analgesia", name: "Paracetamol", prep: "10mg/mL", dose: paraDose, unit: "mg", ml: paraDose/10, badge: "TBW"});
 
-        let neoDose = Math.min(ibw*0.05, 5);
+        // Reversal (Updated Logic)
+        // Neostigmine: 0.05 mg/kg, Max 5mg
+        let neoDose = Math.min(w_nmb * 0.05, 5.0);
+        // Atropine: 0.02 mg/kg, Max 1.2mg
+        let atroDose = Math.min(w_nmb * 0.02, 1.2);
+
         drugs.push({cat: "Reversal", name: "Neostigmine", prep: "2.5mg/10mL", dose: neoDose, unit: "mg", ml: neoDose/0.25, badge: "IBW"});
-        
-        let ephDose = Math.min(ibw*0.1, 6);
-        drugs.push({cat: "Emergency", name: "Ephedrine", prep: "3mg/mL (Diluted)", dose: ephDose, unit: "mg", ml: ephDose/3, badge: "Max IBW"});
-        
-        drugs.push({cat: "Emergency", name: "Atropine", prep: "0.1mg/mL", dose: Math.max(neoDose*0.4, 0.1), unit: "mg", ml: (Math.max(neoDose*0.4, 0.1))/0.1, badge: "Mix"});
+        drugs.push({cat: "Reversal", name: "Atropine", prep: "0.1mg/mL", dose: atroDose, unit: "mg", ml: atroDose/0.1, badge: "IBW"});
+
+        // Ephedrine (Updated Logic)
+        // Ped/Adult logic: 0.1-0.2 mg/kg. Max bolus 10mg.
+        let ephDose = Math.min(w * 0.1, 10); 
+        drugs.push({cat: "Emergency", name: "Ephedrine", prep: "3mg/mL (Diluted)", dose: ephDose, unit: "mg", ml: ephDose/3, badge: "TBW"});
 
         let lidoMax = ibw * 3;
         let marcMax = ibw * 2;
@@ -617,7 +685,7 @@
 
         return {
             ett: ettVal, blade: bladeText, depth: depthVal,
-            maint, rate1st, rate2nd, rate3rd,
+            maint: finalMaint, rate1st, rate2nd,
             drugs,
             lidoMax, marcMax,
             blockData
@@ -626,10 +694,9 @@
 
     // --- VIEW GENERATION ---
     function generateView() {
+        autoSave();
         document.getElementById('view-input').classList.remove('active-view');
         document.getElementById('view-output').classList.add('active-view');
-
-        // Show disclaimer in view (at bottom)
         document.getElementById('main-footer').style.display = 'block';
 
         patients.sort((a, b) => {
@@ -654,7 +721,20 @@
             const calcs = calculate(p);
             
             // NOTE & REQUEST TAGS
-            let noteHtml = p.notes.split(',').filter(x=>x.trim()).map(n => `<span class="tag-note" ${n.trim() === 'Free' ? 'style="background:#d4edda; color:#155724; border-color:#c3e6cb;"' : ''}>${n.trim()}</span>`).join('');
+            let noteHtml = p.notes.split(',').filter(x=>x.trim()).map(n => {
+                let txt = n.trim();
+                let lower = txt.toLowerCase();
+                let cls = 'tag-note';
+                
+                // HIGH ALERT LOGIC
+                if (lower.includes('cardiac') || lower.includes('difficult') || lower.includes('hcv')) {
+                    cls = 'tag-alert';
+                } else if (lower === 'free') {
+                    return `<span class="tag-note" style="background:#d4edda; color:#155724; border-color:#c3e6cb;">${txt}</span>`;
+                }
+                return `<span class="${cls}">${txt}</span>`;
+            }).join('');
+            
             let reqHtml = p.req.split(',').filter(x=>x.trim()).map(r => `<span class="tag-req">${r.trim()}</span>`).join('');
 
             // Drug Rows
@@ -695,6 +775,14 @@
                     </div>
                 </div>`;
             }
+            
+            // Format Weight Text
+            let weightDisplay = fmtNum(p.weight) + " kg";
+            if(p.estimated) weightDisplay += ` <sup class="est-tag">(Est)</sup>`;
+
+            // Nerve Block in Header Text
+            let typeText = p.type;
+            if(p.nerve && p.nerve !== 'None') typeText += ` + ${p.nerve}`;
 
             const html = `
             <div class="patient-card">
@@ -712,9 +800,9 @@
                 <div class="pc-body">
                     <div class="highlight-data">
                         <span class="highlight-val">${p.age} Y</span> | 
-                        <span class="highlight-val">${fmtNum(p.weight)} kg ${p.estimated?'(Est)':''}</span> | 
+                        <span class="highlight-val">${weightDisplay}</span> | 
                         <span style="color:#ef233c;">${p.op}</span>
-                        <div style="font-size:0.8rem; color:#555; margin-top:4px;">${p.type}</div>
+                        <div style="font-size:0.8rem; color:#555; margin-top:4px;">${typeText}</div>
                     </div>
 
                     <div class="tags-wrapper">
@@ -727,13 +815,14 @@
                     <div class="clinical-only">
                         <div class="section-title">🌬️ Airway & Fluids</div>
                         <div class="grid-3">
-                            <div class="data-box"><div class="lbl">ETT</div><div class="val">${calcs.ett}</div></div>
-                            <div class="data-box"><div class="lbl">Depth</div><div class="val">${calcs.depth} cm</div></div>
-                            <div class="data-box"><div class="lbl">Blade</div><div class="val">${calcs.blade}</div></div>
-                            
+                            <div class="data-box"><div class="lbl">Maintenance</div><div class="val">${fmtNum(calcs.maint)} ml/hr</div><span class="drops-text">${getDripRate(calcs.maint)}</span></div>
                             <div class="data-box"><div class="lbl">1st Hr</div><div class="val">${fmtNum(calcs.rate1st)} ml</div><span class="drops-text">${getDripRate(calcs.rate1st)}</span></div>
-                            <div class="data-box"><div class="lbl">2nd Hr</div><div class="val">${fmtNum(calcs.rate2nd)} ml</div><span class="drops-text">${getDripRate(calcs.rate2nd)}</span></div>
-                            <div class="data-box"><div class="lbl">3rd Hr</div><div class="val">${fmtNum(calcs.rate3rd)} ml</div><span class="drops-text">${getDripRate(calcs.rate3rd)}</span></div>
+                            <div class="data-box"><div class="lbl">2nd/3rd Hr</div><div class="val">${fmtNum(calcs.rate2nd)} ml</div><span class="drops-text">${getDripRate(calcs.rate2nd)}</span></div>
+                        </div>
+                        <div class="grid-3" style="margin-top:5px; text-align:center;">
+                             <div class="data-box"><div class="lbl">ETT</div><div class="val">${calcs.ett}</div></div>
+                             <div class="data-box"><div class="lbl">Depth</div><div class="val">${calcs.depth} cm</div></div>
+                             <div class="data-box"><div class="lbl">Blade</div><div class="val">${calcs.blade}</div></div>
                         </div>
 
                         <div class="section-title">💉 Drug Protocol</div>
@@ -750,16 +839,13 @@
         });
     }
 
-   // --- GENERIC EXPORT/SHARE HANDLER ---
+    // --- GENERIC EXPORT/SHARE HANDLER ---
     async function generateContent(type, action) {
         // type: 'pdf' or 'img'
         // action: 'download' or 'share'
 
-        // <--- FIX START: ALLOW ARABIC BUT REMOVE ILLEGAL CHARS --->
         const safeName = listMeta.name.replace(/[\\/:*?"<>|]/g, '_') || "Theater_List";
-        // <--- FIX END --->
-
-        const fileName = `${safeName}_${listMeta.date}`;
+        const finalFileName = `${safeName}_${listMeta.date}`;
 
         const area = document.getElementById('capture-area');
         const header = document.getElementById('final-list-header');
@@ -775,20 +861,12 @@
                 const { jsPDF } = window.jspdf;
                 const cards = document.querySelectorAll('.patient-card');
 
-                // 1. MEASURE DIMENSIONS FROM THE FIRST CARD TO SET PDF WIDTH
-                // This ensures the PDF is exactly the width of the card (perfect for mobile)
-                // We assume all cards are roughly same width in DOM
                 const cardRect = cards[0].getBoundingClientRect();
                 const cardWidthPx = cardRect.width;
-                // PDF Unit: Points. 1px approx 0.75pt. Let's just use 'px' unit in jsPDF for simplicity.
-                // We add a small margin (20px total)
                 const pdfWidth = cardWidthPx + 20;
                 
-                // Initialize PDF with custom width
-                // Height doesn't matter much as we add pages, but let's start with a long strip aspect
-                const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [pdfWidth, 800] }); // Height adjusts auto mostly or we add pages
+                const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [pdfWidth, 800] }); 
 
-                // Helper to get image data
                 const getImg = async (el) => {
                     const c = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
                     return { data: c.toDataURL('image/jpeg', 0.9), w: c.width, h: c.height };
@@ -797,7 +875,6 @@
                 const hData = await getImg(header);
                 const fData = await getImg(footer);
 
-                // Calculate display heights based on PDF width
                 const hHeight = (hData.h * (pdfWidth - 20)) / hData.w;
                 const fHeight = (fData.h * (pdfWidth - 20)) / fData.w;
 
@@ -805,43 +882,36 @@
                     const cData = await getImg(cards[i]);
                     const cHeight = (cData.h * (pdfWidth - 20)) / cData.w;
 
-                    // Calculate total page height needed for this specific patient
-                    // First page: Header + Card. Last page: Card + Footer. Middle: Card.
-                    let pageH = cHeight + 20; // margins
+                    let pageH = cHeight + 20; 
                     if (i === 0) pageH += hHeight + 5;
                     if (i === cards.length - 1) pageH += fHeight + 5;
 
-                    // Set current page size to match content exactly
                     pdf.setPage(i + 1);
                     pdf.internal.pageSize.width = pdfWidth;
                     pdf.internal.pageSize.height = pageH;
                     
                     let currY = 10;
                     
-                    // Add Header
                     if (i === 0) {
                         pdf.addImage(hData.data, 'JPEG', 10, currY, pdfWidth - 20, hHeight);
                         currY += hHeight + 5;
                     }
 
-                    // Add Card
                     pdf.addImage(cData.data, 'JPEG', 10, currY, pdfWidth - 20, cHeight);
                     currY += cHeight + 5;
 
-                    // Add Footer
                     if (i === cards.length - 1) {
                         pdf.addImage(fData.data, 'JPEG', 10, currY, pdfWidth - 20, fHeight);
                     }
 
-                    // Add new page if not last
-                    if (i < cards.length - 1) pdf.addPage([pdfWidth, 800]); // dimensions updated in next loop
+                    if (i < cards.length - 1) pdf.addPage([pdfWidth, 800]); 
                 }
 
                 if (action === 'download') {
-                    pdf.save(`${fileName}.pdf`);
+                    pdf.save(`${finalFileName}.pdf`);
                 } else if (action === 'share') {
                     const pdfBlob = pdf.output('blob');
-                    const file = new File([pdfBlob], `${fileName}.pdf`, { type: 'application/pdf' });
+                    const file = new File([pdfBlob], `${finalFileName}.pdf`, { type: 'application/pdf' });
                     await shareFile(file);
                 }
 
@@ -851,12 +921,12 @@
                 
                 if (action === 'download') {
                     const link = document.createElement('a');
-                    link.download = `${fileName}.jpg`;
+                    link.download = `${finalFileName}.jpg`;
                     link.href = canvas.toDataURL('image/jpeg', 0.9);
                     link.click();
                 } else if (action === 'share') {
                     canvas.toBlob(async (blob) => {
-                        const file = new File([blob], `${fileName}.jpg`, { type: 'image/jpeg' });
+                        const file = new File([blob], `${finalFileName}.jpg`, { type: 'image/jpeg' });
                         await shareFile(file);
                     }, 'image/jpeg', 0.9);
                 }
@@ -890,5 +960,3 @@
 </script>
 </body>
 </html>
-
-
