@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root { 
-            --primary: #ef233c;       
+            --primary: #ef233c;
             --bg: #1a1a1a;            
             --card-bg: #ffffff;
             --dark-card: #2b2b2b;
@@ -22,71 +22,114 @@
         }
 
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg); 
             color: var(--text-light); 
             margin: 0; 
             padding: 20px 0; 
         }
 
-        .container { width: 95%; max-width: 750px; margin: 0 auto; padding-bottom: 80px; }
+        .container { width: 95%;
+            max-width: 750px; margin: 0 auto; padding-bottom: 80px; }
 
         /* HEADER */
-        header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
-        h1 { margin: 0; color: var(--primary); font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; }
+        header { text-align: center;
+            margin-bottom: 25px; border-bottom: 2px solid var(--primary); padding-bottom: 15px; }
+        h1 { margin: 0;
+            color: var(--primary); font-size: 1.8rem; text-transform: uppercase; letter-spacing: 2px; }
 
         /* FORMS */
         .card { 
-            background: var(--card-bg); 
+            background: var(--card-bg);
             color: var(--text-main);
             border-radius: var(--border-radius); 
             padding: 20px; 
             box-shadow: var(--shadow); 
-            margin-bottom: 20px; 
+            margin-bottom: 20px;
         }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; text-transform: uppercase; }
+        
+        /* New Resume Card Style */
+        .resume-card {
+            background: #2b2b2b;
+            color: white;
+            border-left: 5px solid var(--highlight);
+            display: none; /* Hidden by default */
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .form-group { margin-bottom: 15px;
+        }
+        label { display: block; font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;
+            text-transform: uppercase; }
         input, select, textarea { 
-            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; 
-            background: var(--input-bg); color: #333; font-size: 1rem; box-sizing: border-box; 
+            width: 100%;
+            padding: 12px; border-radius: 8px; border: 1px solid #ddd; 
+            background: var(--input-bg); color: #333; font-size: 1rem; box-sizing: border-box;
         }
         /* Make auto-filled weight look solid */
-        input#pWeight { color: #000; font-weight: 700; }
+        input#pWeight { color: #000;
+            font-weight: 700; }
 
-        .row { display: flex; gap: 10px; }
-        .col { flex: 1; }
+        .row { display: flex; gap: 10px;
+        }
+        .col { flex: 1;
+        }
 
         /* SUGGESTION CHIPS */
-        .chips-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .chips-container { display: flex;
+            flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .chip {
-            padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; user-select: none; transition: 0.2s;
+            padding: 6px 12px;
+            border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; user-select: none; transition: 0.2s;
         }
-        .chip:active { transform: scale(0.95); opacity: 0.8; }
-        .chip-red { background: #ffe5e5; color: #d00000; border: 1px solid #ffccd5; }
-        .chip-blue { background: #e0fbfc; color: #0077b6; border: 1px solid #caf0f8; }
-        .chip-green { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .chip:active { transform: scale(0.95); opacity: 0.8;
+        }
+        .chip-red { background: #ffe5e5; color: #d00000; border: 1px solid #ffccd5;
+        }
+        .chip-blue { background: #e0fbfc; color: #0077b6; border: 1px solid #caf0f8;
+        }
+        .chip-green { background: #d4edda; color: #155724; border: 1px solid #c3e6cb;
+        }
         
         /* High Priority Chips */
-        .chip-alert { background: #370617; color: #fff; border: 1px solid #d00000; }
+        .chip-alert { background: #370617;
+            color: #fff; border: 1px solid #d00000; }
 
         /* BUTTONS */
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-primary { background: var(--primary); }
-        .btn-secondary { background: #4361ee; }
-        .btn-success { background: #2a9d8f; }
-        .btn-danger { background: #d90429; }
-        .btn-nurse { background: #f77f00; }
-        .btn-share { background: #25d366; } /* Whatsapp Green-ish */
-        button:active { transform: scale(0.98); }
+        .btn-group { display: flex;
+            gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 15px; border: none;
+            border-radius: 8px; font-weight: 800; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center;
+            gap: 5px; }
+        .btn-primary { background: var(--primary);
+        }
+        .btn-secondary { background: #4361ee;
+        }
+        .btn-success { background: #2a9d8f;
+        }
+        .btn-danger { background: #d90429;
+        }
+        .btn-nurse { background: #f77f00;
+        }
+        .btn-share { background: #25d366;
+        } /* Whatsapp Green-ish */
+        /* Outline button for Resume Card */
+        .btn-outline { background: transparent; border: 2px solid var(--highlight); color: var(--highlight); }
+
+        button:active { transform: scale(0.98);
+        }
 
         /* VIEWS */
-        .view-section { display: none; }
-        .active-view { display: block; }
+        .view-section { display: none;
+        }
+        .active-view { display: block;
+        }
 
         /* PATIENT CARD DESIGN */
         .patient-card { 
-            background: #ffffff; 
+            background: #ffffff;
             color: #2b2d42; 
             border-radius: 10px; 
             margin-bottom: 30px; 
@@ -95,63 +138,99 @@
             position: relative;
         }
         .pc-header { 
-            background: #e9ecef; padding: 10px 15px; border-left: 6px solid var(--primary); display: flex; justify-content: space-between; align-items: center;
+            background: #e9ecef;
+            padding: 10px 15px; border-left: 6px solid var(--primary); display: flex; justify-content: space-between; align-items: center;
         }
-        .pc-num { font-weight: 900; font-size: 1.2rem; color: var(--primary); }
-        .pc-actions button { padding: 5px 10px; font-size: 0.7rem; margin-left: 5px; }
+        .pc-num { font-weight: 900; font-size: 1.2rem; color: var(--primary);
+        }
+        .pc-actions button { padding: 5px 10px; font-size: 0.7rem; margin-left: 5px;
+        }
         
-        .pc-body { padding: 15px; }
+        .pc-body { padding: 15px;
+        }
         
-        .highlight-data { font-size: 1.1rem; font-weight: 900; color: #000; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-        .highlight-val { color: var(--primary); background: #fff3cd; padding: 0 4px; border-radius: 4px; }
-        .est-tag { font-size: 0.7rem; color: #999; vertical-align: middle; margin-left: 2px; }
+        .highlight-data { font-size: 1.1rem;
+            font-weight: 900; color: #000; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 5px;
+        }
+        .highlight-val { color: var(--primary); background: #fff3cd; padding: 0 4px; border-radius: 4px;
+        }
+        .est-tag { font-size: 0.7rem; color: #999; vertical-align: middle; margin-left: 2px;
+        }
 
         /* NOTES & REQUESTS TAGS */
-        .tags-wrapper { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 5px; }
+        .tags-wrapper { margin: 10px 0;
+            display: flex; flex-wrap: wrap; gap: 5px; }
         .tag-note { 
-            background: #ffe5e5; color: #d00000; padding: 4px 8px; 
+            background: #ffe5e5;
+            color: #d00000; padding: 4px 8px; 
             border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #ffccd5;
         }
         /* HIGH ALERT NOTE STYLE */
         .tag-alert {
-            background: #d90429; color: #fff; padding: 6px 10px;
+            background: #d90429;
+            color: #fff; padding: 6px 10px;
             border-radius: 6px; font-size: 0.9rem; font-weight: 900; border: 2px solid #8d99ae;
         }
         
         .tag-req { 
-            background: #e0fbfc; color: #0077b6; padding: 4px 8px; 
+            background: #e0fbfc;
+            color: #0077b6; padding: 4px 8px; 
             border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #caf0f8;
         }
 
         /* CLINICAL GRIDS */
-        .section-title { font-size: 0.8rem; font-weight: 800; color: #555; text-transform: uppercase; margin: 15px 0 5px 0; border-bottom: 2px solid var(--primary); display: inline-block; }
+        .section-title { font-size: 0.8rem;
+            font-weight: 800; color: #555; text-transform: uppercase; margin: 15px 0 5px 0; border-bottom: 2px solid var(--primary); display: inline-block;
+        }
         
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
-        .data-box { background: #f8f9fa; padding: 8px; border-radius: 6px; border: 1px solid #dee2e6; }
-        .lbl { font-size: 0.6rem; color: #888; text-transform: uppercase; font-weight: 700; }
-        .val { font-size: 0.95rem; font-weight: 800; color: #2b2d42; }
-        .drops-text { font-size: 0.65rem; color: #e76f51; font-weight: 700; display: block; font-style: italic; }
+        .grid-3 { display: grid;
+            grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+        .data-box { background: #f8f9fa;
+            padding: 8px; border-radius: 6px; border: 1px solid #dee2e6; }
+        .lbl { font-size: 0.6rem;
+            color: #888; text-transform: uppercase; font-weight: 700; }
+        .val { font-size: 0.95rem; font-weight: 800;
+            color: #2b2d42; }
+        .drops-text { font-size: 0.65rem; color: #e76f51; font-weight: 700; display: block;
+            font-style: italic; }
 
         /* DRUG TABLE */
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 0.85rem; }
-        th { text-align: left; font-size: 0.65rem; color: #666; background: #e9ecef; padding: 6px; text-transform: uppercase; }
-        td { padding: 8px 4px; border-bottom: 1px solid #f1f3f5; color: #222; }
-        .drug-name { font-weight: 800; display: block; }
-        .drug-prep { font-size: 0.7rem; color: #666; }
-        .vol-col { font-weight: 900; color: var(--primary); text-align: right; }
+        table { width: 100%;
+            border-collapse: collapse; margin-top: 5px; font-size: 0.85rem; }
+        th { text-align: left; font-size: 0.65rem;
+            color: #666; background: #e9ecef; padding: 6px; text-transform: uppercase; }
+        td { padding: 8px 4px;
+            border-bottom: 1px solid #f1f3f5; color: #222; }
+        .drug-name { font-weight: 800; display: block;
+        }
+        .drug-prep { font-size: 0.7rem; color: #666;
+        }
+        .vol-col { font-weight: 900; color: var(--primary); text-align: right;
+        }
         
         /* Badges */
-        .w-badge { font-size: 0.55rem; padding: 1px 4px; border-radius: 3px; font-weight: 800; margin-left: 4px; text-transform: uppercase; display: inline-block; }
-        .w-tbw { background: #e9ecef; color: #495057; border: 1px solid #dee2e6; }
-        .w-ibw { background: #e0fbfc; color: #0077b6; border: 1px solid #caf0f8; }
-        .w-fixed { background: #f3e5f5; color: #7b1fa2; }
+        .w-badge { font-size: 0.55rem;
+            padding: 1px 4px; border-radius: 3px; font-weight: 800; margin-left: 4px; text-transform: uppercase; display: inline-block;
+        }
+        .w-tbw { background: #e9ecef; color: #495057; border: 1px solid #dee2e6;
+        }
+        .w-ibw { background: #e0fbfc; color: #0077b6; border: 1px solid #caf0f8;
+        }
+        .w-fixed { background: #f3e5f5; color: #7b1fa2;
+        }
         
-        .cat-row td { background: #f8f9fa; color: #2b2d42; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; padding: 4px 8px; border-left: 3px solid var(--primary); margin-top: 5px; }
+        .cat-row td { background: #f8f9fa;
+            color: #2b2d42; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; padding: 4px 8px; border-left: 3px solid var(--primary); margin-top: 5px;
+        }
 
         /* FINAL LIST HEADER */
-        #final-list-header { background: #fff; color: #000; padding: 20px; text-align: center; border-bottom: 4px solid var(--primary); display: none; }
-        #final-list-header h2 { margin: 0; font-size: 1.8rem; color: var(--primary); text-transform: uppercase; }
-        #final-list-header p { margin: 5px 0 0 0; font-weight: 600; color: #555; }
+        #final-list-header { background: #fff;
+            color: #000; padding: 20px; text-align: center; border-bottom: 4px solid var(--primary); display: none;
+        }
+        #final-list-header h2 { margin: 0; font-size: 1.8rem; color: var(--primary); text-transform: uppercase;
+        }
+        #final-list-header p { margin: 5px 0 0 0; font-weight: 600; color: #555;
+        }
 
         /* DISCLAIMER FOOTER */
         .app-footer {
@@ -163,9 +242,10 @@
             text-align: center;
             border-top: 1px solid #ddd;
             border-radius: 8px;
-            display: none; 
+            display: none;
         }
-        .app-footer a { color: var(--primary); text-decoration: none; font-weight: bold; }
+        .app-footer a { color: var(--primary); text-decoration: none; font-weight: bold;
+        }
 
     </style>
 </head>
@@ -178,7 +258,17 @@
     </header>
 
     <div id="view-setup" class="view-section active-view">
-        <div class="card">
+        
+        <div id="resume-container" class="resume-card">
+            <h3 style="margin:0 0 10px 0; color:var(--highlight);">Saved List Found</h3>
+            <p style="margin:0 0 15px 0; font-size:0.9rem;">You have a previous list named <strong id="saved-list-name">...</strong> with <strong id="saved-pt-count">0</strong> patients.</p>
+            <div class="btn-group">
+                <button class="btn-success" onclick="goToInput()">Continue List</button>
+                <button class="btn-primary" style="background:transparent; border:2px solid var(--highlight); color:var(--highlight);" onclick="resetApp()">Start New</button>
+            </div>
+        </div>
+
+        <div class="card" id="setup-card">
             <div class="form-group">
                 <label>List Name / Theater</label>
                 <input type="text" id="listName" placeholder="TNSH1, Sector 1 .." oninput="autoSave()">
@@ -191,13 +281,15 @@
                 <div class="col">
                     <div class="form-group">
                         <label>Surgeons</label>
-                        <input type="text" id="surgeons" placeholder="Dr." oninput="autoSave()">
+                        <input type="text" id="surgeons" placeholder="Dr."
+oninput="autoSave()">
                     </div>
                 </div>
                 <div class="col">
                     <div class="form-group">
                         <label>Anesthesiologists</label>
-                        <input type="text" id="anesthetists" placeholder="Dr." oninput="autoSave()">
+                        <input type="text" id="anesthetists" placeholder="Dr."
+oninput="autoSave()">
                     </div>
                 </div>
             </div>
@@ -260,15 +352,18 @@
                     <option value="Illiacus">Illiacus</option>
                     <option value="Femoro-sciatic">Femoro-sciatic</option>
                     <option value="Femoro-popliteal">Femoro-popliteal</option>
+                    <option value="Caudal">Caudal</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Positive Data / Allergies / Notes</label>
+                <label>Positive Data 
+/ Allergies / Notes</label>
                 <textarea id="pNotes" placeholder="Htn on ACEI, Hb8 .."></textarea>
                 <div class="chips-container">
                     <div class="chip chip-green" onclick="setFree()">Free</div>
                     <div class="chip chip-alert" onclick="addTag('pNotes', 'Cardiac')">Cardiac</div>
-                    <div class="chip chip-alert" onclick="addTag('pNotes', 'Difficult Intubation')">Diff. Airway</div>
+                    <div class="chip chip-alert" onclick="addTag('pNotes', 'Difficult Intubation')">Diff.
+Airway</div>
                     <div class="chip chip-alert" onclick="addTag('pNotes', 'HCV +ve')">HCV +ve</div>
                     <div class="chip chip-red" onclick="addTag('pNotes', 'Htn')">Htn</div>
                     <div class="chip chip-red" onclick="addTag('pNotes', 'Dm')">Dm</div>
@@ -293,36 +388,45 @@
 
             <div class="btn-group">
                 <button class="btn-secondary" id="btnAddParam" onclick="addPatient()">➕ Add to List</button>
-                <button class="btn-success" onclick="generateView()">✅ Finish & View List</button>
+                <button class="btn-success" onclick="generateView()">✅ Finish 
+& View List</button>
             </div>
         </div>
-        <div style="text-align:center; font-size:0.8rem; color:#888; margin-top:10px;">
-            Current Patients: <span id="count-badge" style="color:white; font-weight:bold;">0</span>
+        <div style="text-align:center;
+font-size:0.8rem; color:#888; margin-top:10px;">
+            Current Patients: <span id="count-badge" style="color:white;
+font-weight:bold;">0</span>
         </div>
     </div>
 
     <div id="view-output" class="view-section">
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <div style="display:flex;
+gap:10px; margin-bottom:15px;">
             <button class="btn-primary" onclick="goToInput()">➕ Add More</button>
             <button class="btn-danger" onclick="resetApp()">🔄 Reset All</button>
         </div>
 
-        <div id="capture-area" style="background: #ffffff; padding: 0; border-radius: 5px;">
+        <div id="capture-area" style="background: #ffffff;
+padding: 0; border-radius: 5px;">
             
             <div id="final-list-header">
                 <h2 id="out-list-name">Lista Theater</h2>
                 <p><span id="out-date"></span> | <span id="out-team"></span></p>
-                <p style="font-size:0.9rem; margin-top:5px; color:#ef233c;">Total Patients: <span id="out-count">0</span></p>
+                <p style="font-size:0.9rem;
+margin-top:5px; color:#ef233c;">Total Patients: <span id="out-count">0</span></p>
             </div>
 
             <div id="list-container" style="padding: 10px;"></div>
 
             <div class="app-footer" id="main-footer">
-                <p style="margin: 0 0 5px 0; font-weight: bold;">MEDICAL DISCLAIMER</p>
-                <p style="margin: 0 0 10px 0; font-style: italic;">
+                <p style="margin: 0 0 5px 0;
+font-weight: bold;">MEDICAL DISCLAIMER</p>
+                <p style="margin: 0 0 10px 0;
+font-style: italic;">
                     This list was made by Lista app and it is for organizing the theater and calculations aid for healthcare professionals. 
                     Verify all the data of patients and all doses according to local protocols. 
-                    The developer is not responsible for clinical errors.
+                    The developer is not responsible for 
+clinical errors.
                 </p>
                 <p style="margin: 0;">
                     Feedback: 
@@ -331,7 +435,8 @@
             </div>
         </div>
 
-        <div class="card" style="margin-top:20px; background: #2b2b2b; color:white;">
+        <div class="card" style="margin-top:20px;
+background: #2b2b2b; color:white;">
             <label>Saving Options</label>
             <div class="btn-group">
                 <button class="btn-primary" onclick="generateContent('pdf', 'download')">⬇️ PDF</button>
@@ -341,7 +446,8 @@
                 <button class="btn-nurse" onclick="generateContent('img', 'download')">⬇️ Photo</button>
                 <button class="btn-share" onclick="generateContent('img', 'share')">📲 Share Photo</button>
             </div>
-            <p style="font-size:0.7rem; color:#aaa; text-align:center; margin-top:5px;">
+            <p style="font-size:0.7rem;
+color:#aaa; text-align:center; margin-top:5px;">
                 "Management" photo hides drugs/fluids. PDF contains full data.
             </p>
         </div>
@@ -351,6 +457,7 @@
 <script>
     // --- HELPERS ---
     function fmtNum(n) { return parseFloat(n.toFixed(2)); }
+    function roundHalf(n) { return (Math.round(n * 2) / 2).toFixed(1).replace(/\.0$/, ''); }
 
     function addTag(fieldId, text) {
         const el = document.getElementById(fieldId);
@@ -397,9 +504,14 @@
             document.getElementById('listDate').valueAsDate = tmr;
         }
 
-        if(savedPatients) {
+        if(savedPatients && JSON.parse(savedPatients).length > 0) {
             patients = JSON.parse(savedPatients);
             document.getElementById('count-badge').innerText = patients.length;
+            
+            document.getElementById('saved-list-name').innerText = listMeta.name || "Unnamed List";
+            document.getElementById('saved-pt-count').innerText = patients.length;
+            document.getElementById('resume-container').style.display = 'block';
+            document.getElementById('setup-card').style.display = 'none';
         }
     };
 
@@ -438,13 +550,13 @@
         if(!age && age !== 0) return;
         
         let w = 0;
-        if (age < 1) w = (age * 12 + 9) / 2; 
+        if (age < 1) w = (age * 12 + 9) / 2;
         else if (age <= 8) w = (age * 2) + 8;
         else if (age < 18) w = (age * 3) + 7;
         else w = 70;
-
         // Automatically write the value in Black (Value) not just placeholder
-        wInput.value = parseFloat(w.toFixed(1)); // No .0
+        wInput.value = parseFloat(w.toFixed(1));
+        // No .0
         document.getElementById('pIsEst').value = "true";
     }
 
@@ -478,7 +590,6 @@
         const nerve = document.getElementById('pNerve').value;
         const req = document.getElementById('pRequests').value;
         let notes = document.getElementById('pNotes').value;
-
         if(!name || isNaN(age) || !op) {
             alert("Name, Age, and Operation are required.");
             return;
@@ -492,17 +603,17 @@
         let isEst = document.getElementById('pIsEst').value === "true";
         if (!weight) {
             isEst = true;
-            if (age < 1) weight = (age * 12 + 9) / 2; 
+            if (age < 1) weight = (age * 12 + 9) / 2;
             else if (age <= 8) weight = (age * 2) + 8;
             else if (age < 18) weight = (age * 3) + 7;
             else weight = 70;
         }
 
         const pObj = {
-            id: idVal ? parseInt(idVal) : Date.now(),
+            id: idVal ?
+            parseInt(idVal) : Date.now(),
             name, age, weight, estimated: isEst, op, type, nerve, req, notes
         };
-
         if(editMode && idVal) {
             const idx = patients.findIndex(p => p.id == idVal);
             if(idx !== -1) patients[idx] = pObj;
@@ -542,7 +653,8 @@
         document.getElementById('pNerve').value = p.nerve;
         document.getElementById('pRequests').value = p.req;
         document.getElementById('pNotes').value = p.notes;
-        document.getElementById('pIsEst').value = p.estimated ? "true" : "false";
+        document.getElementById('pIsEst').value = p.estimated ?
+        "true" : "false";
         
         document.getElementById('btnAddParam').innerText = "💾 Update Patient";
         document.getElementById('btnAddParam').classList.remove('btn-secondary');
@@ -563,11 +675,9 @@
         if (age < 1) ibw = (age * 12 + 9) / 2;
         else if (age <= 8) ibw = (age * 2) + 8;
         else if (age < 18) ibw = (age * 3) + 7;
-        
         const safetyWeight = (weight > ibw * 1.3) ? ibw : weight;
         const maxMg = 2 * safetyWeight;
-
-        let vol = 20; 
+        let vol = 10; 
         let conc = 0.5;
 
         switch(blockType) {
@@ -577,18 +687,23 @@
             case 'Axillary':
             case 'Femoro-sciatic':
             case 'Femoro-popliteal':
-                vol = 20; conc = 0.5; break;
+                vol = 10; conc = 0.5; break;
             case 'Tap':
             case 'ESP':
             case 'Serratus':
             case 'Illiacus':
-                vol = 30; conc = 0.25; break;
+                vol = 30;
+                conc = 0.25; break;
+            case 'Caudal':
+                vol = Math.min(safetyWeight * 1, 20);
+                conc = 0.25; break;
             default:
-                vol = 20; conc = 0.25;
+                vol = 10;
+                conc = 0.25;
         }
 
-        if (safetyWeight < 30) {
-            vol = safetyWeight * 0.5; 
+        if (safetyWeight < 30 && blockType !== 'Caudal') {
+            vol = safetyWeight * 0.5;
         }
 
         let proposedMg = vol * conc * 10;
@@ -597,7 +712,7 @@
             proposedMg = vol * conc * 10;
         }
 
-        return { vol: fmtNum(vol), conc: conc, mg: fmtNum(proposedMg), maxMg: fmtNum(maxMg) };
+        return { vol: roundHalf(vol), conc: conc, mg: fmtNum(proposedMg), maxMg: fmtNum(maxMg) };
     }
 
     function calculate(p) {
@@ -608,36 +723,45 @@
         if (age < 1) ibw = (age * 12 + 9) / 2;
         else if (age <= 8) ibw = (age * 2) + 8;
         else if (age < 18) ibw = (age * 3) + 7;
-        
         const isObese = (w > ibw * 1.3 && age >= 12);
-        const abw = isObese ? (ibw + 0.4 * (w - ibw)) : w;
+        const abw = isObese ?
+        (ibw + 0.4 * (w - ibw)) : w;
         
         const w_ind = isObese ? abw : w;
         const w_nmb = isObese ? ibw : w;
 
         // Airway
         let ettVal, bladeText;
-        if (age < 0.1) { ettVal = "2.5"; bladeText = "Miller 0"; }
-        else if (age < 0.5) { ettVal = "3.0"; bladeText = "Miller 0/1"; }
-        else if (age < 1.0) { ettVal = "3.5"; bladeText = "Mac 1"; }
-        else if (age < 2.0) { ettVal = "4.0"; bladeText = "Mac 1/2"; }
-        else if (age <= 10.0) { ettVal = ((age/4)+4).toFixed(1); bladeText = "Mac 2/3"; }
-        else if (age < 18.0) { ettVal = "6.5-7.0"; bladeText = "Mac 3"; }
-        else { ettVal = "7.0(F) / 7.5(M)"; bladeText = "Mac 3/4"; }
+        if (age < 0.1) { ettVal = "2.5"; bladeText = "Miller 0";
+        }
+        else if (age < 0.5) { ettVal = "3.0";
+        bladeText = "Miller 0/1"; }
+        else if (age < 1.0) { ettVal = "3.5";
+        bladeText = "Mac 1"; }
+        else if (age < 2.0) { ettVal = "4.0";
+        bladeText = "Mac 1/2"; }
+        else if (age <= 10.0) { ettVal = roundHalf((age/4)+4);
+        bladeText = "Mac 2/3"; }
+        else if (age < 18.0) { ettVal = "6.5-7.0";
+        bladeText = "Mac 3"; }
+        else { ettVal = "7.0(F) / 7.5(M)";
+        bladeText = "Mac 3/4"; }
 
-        let depthVal = (age < 1) ? (w + 6).toFixed(1) : (age >= 18 ? "21-23" : (((age/4)+4)*3).toFixed(0));
-
+        let depthVal = (age < 1) ?
+        (w + 6).toFixed(1) : (age >= 18 ? "21-23" : (((age/4)+4)*3).toFixed(0));
         // Fluid Logic
         // Base Maint (4/2/1)
-        let baseMaint = (w <= 10) ? (w * 4) : (w <= 20 ? (40 + (w-10)*2) : (60 + (w-20)));
+        let baseMaint = (w <= 10) ?
+        (w * 4) : (w <= 20 ? (40 + (w-10)*2) : (60 + (w-20)));
         let deficit = baseMaint * 6; // Standard deficit calculation
 
         // Modifiers applied to the Hourly Rate
         let finalMaint = baseMaint;
         if(p.type === 'Spinal') finalMaint = finalMaint * 1.15; // +15%
-        if(p.notes.toLowerCase().includes('cardiac')) finalMaint = finalMaint * 0.8; // -20%
+        if((p.notes||"").toLowerCase().includes('cardiac')) finalMaint = finalMaint * 0.8;
+        // -20%
 
-        let rate1st = finalMaint + (deficit * 0.5); 
+        let rate1st = finalMaint + (deficit * 0.5);
         let rate2nd = finalMaint + (deficit * 0.25); 
         // 3rd is same as 2nd
 
@@ -649,31 +773,35 @@
         let pDose = (isSedation ? w : (age < 12 ? w : w_ind)) * pFactor;
         let pLabel = isSedation ? "Propofol (Sedation)" : "Propofol";
         drugs.push({cat: "Induction", name: pLabel, prep: "10mg/mL", dose: pDose, unit: "mg", ml: pDose/10, badge: isSedation ? "TBW" : (age<12?"TBW":"ABW")});
-
         drugs.push({cat: "Induction", name: "Fentanyl", prep: "10mcg/mL", dose: w*1.5, unit: "mcg", ml: (w*1.5)/10, badge: "TBW"});
         drugs.push({cat: "Induction", name: "Atracurium", prep: "5mg/mL", dose: w_nmb*0.5, unit: "mg", ml: (w_nmb*0.5)/5, badge: isObese?"IBW":"TBW"});
         drugs.push({cat: "Induction", name: "Rocuronium", prep: "10mg/mL", dose: w_nmb*0.6, unit: "mg", ml: (w_nmb*0.6)/10, badge: isObese?"IBW":"TBW"});
         drugs.push({cat: "Induction", name: "Sugammadex", prep: "100mg/10mL", dose: w_nmb*2, unit: "mg", ml: (w_nmb*2)/10, badge: "IBW"});
-
         let dexDose = (age >= 18) ? 8 : Math.min(w*0.15, 10);
         drugs.push({cat: "Co-Analgesia", name: "Dexamethasone", prep: "4mg/10mL", dose: dexDose, unit: "mg", ml: dexDose/0.4, badge: "Fixed"});
         
         let paraDose = Math.min(w*15, 1000);
         drugs.push({cat: "Co-Analgesia", name: "Paracetamol", prep: "10mg/mL", dose: paraDose, unit: "mg", ml: paraDose/10, badge: "TBW"});
-
         // Reversal (Updated Logic)
         // Neostigmine: 0.05 mg/kg, Max 5mg
         let neoDose = Math.min(w_nmb * 0.05, 5.0);
         // Atropine: 0.02 mg/kg, Max 1.2mg
         let atroDose = Math.min(w_nmb * 0.02, 1.2);
-
         drugs.push({cat: "Reversal", name: "Neostigmine", prep: "2.5mg/10mL", dose: neoDose, unit: "mg", ml: neoDose/0.25, badge: "IBW"});
         drugs.push({cat: "Reversal", name: "Atropine", prep: "0.1mg/mL", dose: atroDose, unit: "mg", ml: atroDose/0.1, badge: "IBW"});
-
         // Ephedrine (Updated Logic)
         // Ped/Adult logic: 0.1-0.2 mg/kg. Max bolus 10mg.
         let ephDose = Math.min(w * 0.1, 10); 
         drugs.push({cat: "Emergency", name: "Ephedrine", prep: "3mg/mL (Diluted)", dose: ephDose, unit: "mg", ml: ephDose/3, badge: "TBW"});
+
+        // INFUSIONS
+        drugs.push({cat: "Infusion", name: "Precedex Load", prep: "1mcg/kg/10m", dose: w*1, unit: "mcg", ml: 0, badge: "TBW"});
+        
+        let precRate = w * 0.2; // 0.2 mcg/kg/hr, diluted 50mcg in 50ml (1mcg/ml)
+        drugs.push({cat: "Infusion", name: "Precedex Maint", prep: "50mcg/50mL", dose: w*0.2, unit: "mcg/h", ml: precRate, badge: "TBW"});
+        
+        let noraRate = (w * 0.1 * 60) / 160; // 0.1 mcg/kg/min, diluted 8mg in 50ml (160mcg/ml)
+        drugs.push({cat: "Infusion", name: "Noradrenaline", prep: "8mg/50mL", dose: w*0.1, unit: "mcg/m", ml: noraRate, badge: "TBW"});
 
         let lidoMax = ibw * 3;
         let marcMax = ibw * 2;
@@ -703,8 +831,9 @@
             let sA = 0, sB = 0;
             if(a.age < 12) sA += 10;
             if(b.age < 12) sB += 10;
-            if((a.notes+a.req).toLowerCase().includes('allergy')) sA += 5;
-            if((b.notes+b.req).toLowerCase().includes('allergy')) sB += 5;
+            if(((a.notes||"")+(a.req||"")).toLowerCase().includes('allergy')) sA += 5;
+            if(((b.notes||"")+(b.req||"")).toLowerCase().includes('allergy')) sB += 5;
+          
             return sB - sA;
         });
 
@@ -716,26 +845,28 @@
 
         const cont = document.getElementById('list-container');
         cont.innerHTML = "";
-
         patients.forEach((p, idx) => {
             const calcs = calculate(p);
             
             // NOTE & REQUEST TAGS
-            let noteHtml = p.notes.split(',').filter(x=>x.trim()).map(n => {
+            let noteHtml = (p.notes||"").split(',').filter(x=>x.trim()).map(n => {
                 let txt = n.trim();
-                let lower = txt.toLowerCase();
+                let lower 
+= txt.toLowerCase();
                 let cls = 'tag-note';
                 
                 // HIGH ALERT LOGIC
                 if (lower.includes('cardiac') || lower.includes('difficult') || lower.includes('hcv')) {
                     cls = 'tag-alert';
+ 
                 } else if (lower === 'free') {
                     return `<span class="tag-note" style="background:#d4edda; color:#155724; border-color:#c3e6cb;">${txt}</span>`;
                 }
                 return `<span class="${cls}">${txt}</span>`;
             }).join('');
+        
             
-            let reqHtml = p.req.split(',').filter(x=>x.trim()).map(r => `<span class="tag-req">${r.trim()}</span>`).join('');
+            let reqHtml = (p.req||"").split(',').filter(x=>x.trim()).map(r => `<span class="tag-req">${r.trim()}</span>`).join('');
 
             // Drug Rows
             let lastCat = "";
@@ -744,21 +875,30 @@
                 if (d.cat !== lastCat) {
                     catHeader = `<tr class="cat-row"><td colspan="3">${d.cat}</td></tr>`;
                     lastCat = d.cat;
+          
                 }
-                return `${catHeader}
-                <tr>
-                    <td><span class="drug-name">${d.name}</span> <span class="drug-prep">${d.prep}</span></td>
-                    <td>${fmtNum(d.dose)} ${d.unit} <span class="w-badge w-${d.badge.toLowerCase().includes('ibw')?'ibw':'tbw'}">${d.badge}</span></td>
-                    <td class="vol-col">${fmtNum(d.ml)} mL</td>
-                </tr>`;
+                if (d.cat === "Infusion") {
+                    return `${catHeader}
+                    <tr>
+                        <td><span class="drug-name">${d.name}</span> <span class="drug-prep">${d.prep}</span></td>
+                        <td>${fmtNum(d.dose)} ${d.unit} <span class="w-badge w-tbw">${d.badge}</span></td>
+                        <td class="vol-col">${d.ml > 0 ? fmtNum(d.ml) + ' ml/h' : '--'}</td>
+                    </tr>`;
+                } else {
+                    return `${catHeader}
+                    <tr>
+                        <td><span class="drug-name">${d.name}</span> <span class="drug-prep">${d.prep}</span></td>
+                        <td>${fmtNum(d.dose)} ${d.unit} <span class="w-badge w-${d.badge.toLowerCase().includes('ibw')?'ibw':'tbw'}">${d.badge}</span></td>
+                        <td class="vol-col">${roundHalf(d.ml)} mL</td>
+                    </tr>`;
+                }
             }).join('');
-
             let safetyHtml = `
             <div style="margin-top:5px; font-size:0.75rem; background:#fff0f3; padding:5px; border-radius:4px; border:1px solid #ffccd5;">
                 <strong>⚠️ Max Safety Limits (IBW):</strong> 
-                Lidocaine: ${fmtNum(calcs.lidoMax)}mg | Marcaine: ${fmtNum(calcs.marcMax)}mg
+                Lidocaine: ${fmtNum(calcs.lidoMax)}mg |
+Marcaine: ${fmtNum(calcs.marcMax)}mg
             </div>`;
-
             // NERVE BLOCK HIGHLIGHT
             let blockHtml = "";
             if(calcs.blockData) {
@@ -768,10 +908,12 @@
                     <strong style="font-size:0.9rem;">📍 BLOCK: ${p.nerve}</strong><br>
                     <span style="font-size:0.8rem; color:#023e8a;">Suggestion:</span> 
                     <span style="font-weight:900; font-size:1rem; color:#ef233c;">
+     
                         ${bd.vol} mL of Bupivacaine ${bd.conc}%
                     </span>
                     <div style="font-size:0.7rem; margin-top:3px; color:#555;">
                         (Contains ${bd.mg}mg. Safe Max: ${bd.maxMg}mg)
+      
                     </div>
                 </div>`;
             }
@@ -783,55 +925,65 @@
             // Nerve Block in Header Text
             let typeText = p.type;
             if(p.nerve && p.nerve !== 'None') typeText += ` + ${p.nerve}`;
-
             const html = `
             <div class="patient-card">
                 <div class="pc-header">
                     <div>
                         <span class="pc-num">#${idx+1}</span> 
+                     
                         <span style="font-weight:800; font-size:1.1rem; margin-left:8px;">${p.name}</span>
                     </div>
                     <div class="pc-actions" data-html2canvas-ignore>
                         <button class="btn-secondary" onclick="editPatient(${p.id})">EDIT</button>
-                        <button class="btn-danger" onclick="deletePatient(${p.id})">DEL</button>
+                        <button class="btn-danger" 
+onclick="deletePatient(${p.id})">DEL</button>
                     </div>
                 </div>
                 
                 <div class="pc-body">
                     <div class="highlight-data">
-                        <span class="highlight-val">${p.age} Y</span> | 
-                        <span class="highlight-val">${weightDisplay}</span> | 
+          
+                        <span class="highlight-val">${p.age} Y</span> |
+<span class="highlight-val">${weightDisplay}</span> | 
                         <span style="color:#ef233c;">${p.op}</span>
                         <div style="font-size:0.8rem; color:#555; margin-top:4px;">${typeText}</div>
                     </div>
 
                     <div class="tags-wrapper">
                         ${noteHtml}
+    
                     </div>
                     <div class="tags-wrapper">
                         ${reqHtml}
                     </div>
 
+                   
                     <div class="clinical-only">
                         <div class="section-title">🌬️ Airway & Fluids</div>
                         <div class="grid-3">
                             <div class="data-box"><div class="lbl">Maintenance</div><div class="val">${fmtNum(calcs.maint)} ml/hr</div><span class="drops-text">${getDripRate(calcs.maint)}</span></div>
+            
                             <div class="data-box"><div class="lbl">1st Hr</div><div class="val">${fmtNum(calcs.rate1st)} ml</div><span class="drops-text">${getDripRate(calcs.rate1st)}</span></div>
                             <div class="data-box"><div class="lbl">2nd/3rd Hr</div><div class="val">${fmtNum(calcs.rate2nd)} ml</div><span class="drops-text">${getDripRate(calcs.rate2nd)}</span></div>
                         </div>
+                    
                         <div class="grid-3" style="margin-top:5px; text-align:center;">
                              <div class="data-box"><div class="lbl">ETT</div><div class="val">${calcs.ett}</div></div>
                              <div class="data-box"><div class="lbl">Depth</div><div class="val">${calcs.depth} cm</div></div>
+                            
                              <div class="data-box"><div class="lbl">Blade</div><div class="val">${calcs.blade}</div></div>
                         </div>
 
                         <div class="section-title">💉 Drug Protocol</div>
                         <table>
-                            <thead><tr><th style="width:50%">Drug</th><th style="width:30%">Dose</th><th style="width:20%; text-align:right">Vol</th></tr></thead>
+                     
+                            <thead><tr><th style="width:50%">Drug</th><th style="width:30%">Dose</th><th style="width:20%;
+text-align:right">Vol</th></tr></thead>
                             <tbody>${drugRows}</tbody>
                         </table>
                         ${blockHtml}
-                        ${safetyHtml}
+                        
+${safetyHtml}
                     </div>
                     </div>
             </div>`;
@@ -841,16 +993,17 @@
 
     // --- GENERIC EXPORT/SHARE HANDLER ---
     async function generateContent(type, action) {
+     
         // type: 'pdf' or 'img'
         // action: 'download' or 'share'
 
-        const safeName = listMeta.name.replace(/[\\/:*?"<>|]/g, '_') || "Theater_List";
+        const safeName = listMeta.name.replace(/[\\/:*?"<>|]/g, '_') ||
+"Theater_List";
         const finalFileName = `${safeName}_${listMeta.date}`;
 
         const area = document.getElementById('capture-area');
         const header = document.getElementById('final-list-header');
         const footer = document.getElementById('main-footer');
-        
         // Hide clinical data if image (Management Copy)
         if (type === 'img') {
              document.querySelectorAll('.clinical-only').forEach(el => el.style.display = 'none');
@@ -864,9 +1017,7 @@
                 const cardRect = cards[0].getBoundingClientRect();
                 const cardWidthPx = cardRect.width;
                 const pdfWidth = cardWidthPx + 20;
-                
-                const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [pdfWidth, 800] }); 
-
+                const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: [pdfWidth, 800] });
                 const getImg = async (el) => {
                     const c = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
                     return { data: c.toDataURL('image/jpeg', 0.9), w: c.width, h: c.height };
@@ -877,21 +1028,18 @@
 
                 const hHeight = (hData.h * (pdfWidth - 20)) / hData.w;
                 const fHeight = (fData.h * (pdfWidth - 20)) / fData.w;
-
                 for (let i = 0; i < cards.length; i++) {
                     const cData = await getImg(cards[i]);
                     const cHeight = (cData.h * (pdfWidth - 20)) / cData.w;
 
-                    let pageH = cHeight + 20; 
+                    let pageH = cHeight + 20;
                     if (i === 0) pageH += hHeight + 5;
                     if (i === cards.length - 1) pageH += fHeight + 5;
-
                     pdf.setPage(i + 1);
                     pdf.internal.pageSize.width = pdfWidth;
                     pdf.internal.pageSize.height = pageH;
                     
                     let currY = 10;
-                    
                     if (i === 0) {
                         pdf.addImage(hData.data, 'JPEG', 10, currY, pdfWidth - 20, hHeight);
                         currY += hHeight + 5;
@@ -904,7 +1052,7 @@
                         pdf.addImage(fData.data, 'JPEG', 10, currY, pdfWidth - 20, fHeight);
                     }
 
-                    if (i < cards.length - 1) pdf.addPage([pdfWidth, 800]); 
+                    if (i < cards.length - 1) pdf.addPage([pdfWidth, 800]);
                 }
 
                 if (action === 'download') {
@@ -918,7 +1066,6 @@
             } else {
                 // IMAGE GENERATION
                 const canvas = await html2canvas(area, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-                
                 if (action === 'download') {
                     const link = document.createElement('a');
                     link.download = `${finalFileName}.jpg`;
@@ -928,6 +1075,7 @@
                     canvas.toBlob(async (blob) => {
                         const file = new File([blob], `${finalFileName}.jpg`, { type: 'image/jpeg' });
                         await shareFile(file);
+     
                     }, 'image/jpeg', 0.9);
                 }
             }
@@ -947,6 +1095,7 @@
             try {
                 await navigator.share({
                     files: [file],
+             
                     title: listMeta.name,
                     text: `Theater List: ${listMeta.date}`
                 });
